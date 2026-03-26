@@ -1284,60 +1284,86 @@
 
 
 import { useState } from "react"
-import axios from "axios"
-import { Bar } from "react-chartjs-2"
-import "chart.js/auto"
+// import axios from "axios"
+// import { Bar } from "react-chartjs-2"
+// import "chart.js/auto"
 
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
-import "react-circular-progressbar/dist/styles.css"
+// import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
+// import "react-circular-progressbar/dist/styles.css"
 
-function App(){
+// function App(){
 
-const [message,setMessage] = useState("")
-const [result,setResult] = useState(null)
+// const [message,setMessage] = useState("")
+// const [result,setResult] = useState(null)
 
-const [total,setTotal] = useState(0)
-const [scam,setScam] = useState(0)
-const [safe,setSafe] = useState(0)
+// const [total,setTotal] = useState(0)
+// const [scam,setScam] = useState(0)
+// const [safe,setSafe] = useState(0)
 
-// Chatbot states
-const [chat,setChat] = useState("")
-const [reply,setReply] = useState("")
-
-
-// ================= SCAM DETECTION =================
-
-const detectScam = async()=>{
-
-if(message.trim()===""){
-alert("Please enter a message")
-return
-}
-
-try{
-
-const res = await axios.post("http://localhost:5000/api/check",{message})
-
-setResult(res.data)
-
-setTotal(prev=>prev+1)
-
-if(res.data.risk_score > 50){
-setScam(prev=>prev+1)
-alert("⚠ Scam Detected")
-}else{
-setSafe(prev=>prev+1)
-}
-
-}catch(err){
-console.log(err)
-alert("Server Error")
-}
-
-}
+// // Chatbot states
+// const [chat,setChat] = useState("")
+// const [reply,setReply] = useState("")
 
 
-// ================= AI CHATBOT =================
+// // ================= SCAM DETECTION =================
+
+// const detectScam = async()=>{
+
+// if(message.trim()===""){
+// alert("Please enter a message")
+// return
+// }
+
+// try{
+
+// const res = await axios.post("http://localhost:5000/api/check",{message})
+
+// setResult(res.data)
+
+// setTotal(prev=>prev+1)
+
+// if(res.data.risk_score > 50){
+// setScam(prev=>prev+1)
+// alert("⚠ Scam Detected")
+// }else{
+// setSafe(prev=>prev+1)
+// }
+
+// }catch(err){
+// console.log(err)
+// alert("Server Error")
+// }
+
+// }
+
+
+// // ================= AI CHATBOT =================
+
+// // const askAI = async()=>{
+
+// // if(chat.trim()===""){
+// // alert("Ask something first")
+// // return
+// // }
+
+// // try{
+
+// // const res = await axios.post(
+// // "http://localhost:5000/api/ask-ai",
+// // { message: chat }
+// // )
+
+// // setReply(res.data.reply)
+
+// // }catch(err){
+
+// // console.log(err)
+// // alert("AI Server Error")
+
+// // }
+
+// // }
+
 
 // const askAI = async()=>{
 
@@ -1365,175 +1391,548 @@ alert("Server Error")
 // }
 
 
-const askAI = async()=>{
+// // ================= ANALYTICS DATA =================
 
-if(chat.trim()===""){
-alert("Ask something first")
-return
-}
-
-try{
-
-const res = await axios.post(
-"http://localhost:5000/api/ask-ai",
-{ message: chat }
-)
-
-setReply(res.data.reply)
-
-}catch(err){
-
-console.log(err)
-alert("AI Server Error")
-
-}
-
-}
+// const data = {
+// labels:["Scam","Safe"],
+// datasets:[
+// {
+// label:"Detection Analytics",
+// data:[scam,safe],
+// backgroundColor:["#ff3b3b","#00ff9c"]
+// }
+// ]
+// }
 
 
-// ================= ANALYTICS DATA =================
+// // ================= UI =================
 
-const data = {
-labels:["Scam","Safe"],
-datasets:[
-{
-label:"Detection Analytics",
-data:[scam,safe],
-backgroundColor:["#ff3b3b","#00ff9c"]
-}
-]
-}
+// return(
+
+// <div className="container">
+
+// <h1 className="title">🔐 AI Scam Detection System</h1>
+// <p className="subtitle">AI Powered Cybersecurity Protection</p>
 
 
-// ================= UI =================
+// {/* MESSAGE SCANNER */}
 
-return(
+// <div className="scanner">
 
-<div className="container">
+// <textarea
+// rows="5"
+// placeholder="Paste suspicious message here..."
+// value={message}
+// onChange={(e)=>setMessage(e.target.value)}
+// />
 
-<h1 className="title">🔐 AI Scam Detection System</h1>
-<p className="subtitle">AI Powered Cybersecurity Protection</p>
+// <button onClick={detectScam}>
+// Detect Scam
+// </button>
 
-
-{/* MESSAGE SCANNER */}
-
-<div className="scanner">
-
-<textarea
-rows="5"
-placeholder="Paste suspicious message here..."
-value={message}
-onChange={(e)=>setMessage(e.target.value)}
-/>
-
-<button onClick={detectScam}>
-Detect Scam
-</button>
-
-</div>
+// </div>
 
 
-{/* RESULT PANEL */}
+// {/* RESULT PANEL */}
 
-{result && (
+// {result && (
 
-<div className="result-panel">
+// <div className="result-panel">
 
-<h2>{result.result}</h2>
+// <h2>{result.result}</h2>
 
-<p>Risk Score: {result.risk_score}%</p>
-<p>AI Confidence: {result.ai_confidence}</p>
+// <p>Risk Score: {result.risk_score}%</p>
+// <p>AI Confidence: {result.ai_confidence}</p>
 
-{result.phishing_link && (
-<p className="phishing">⚠ Phishing Link Detected</p>
-)}
+// {result.phishing_link && (
+// <p className="phishing">⚠ Phishing Link Detected</p>
+// )}
 
-<div className="gauge">
+// <div className="gauge">
 
-<CircularProgressbar
-value={result.risk_score}
-text={`${result.risk_score}%`}
-styles={buildStyles({
-textColor:"#fff",
-pathColor:"#ff3b3b",
-trailColor:"#1e293b"
-})}
-/>
+// <CircularProgressbar
+// value={result.risk_score}
+// text={`${result.risk_score}%`}
+// styles={buildStyles({
+// textColor:"#fff",
+// pathColor:"#ff3b3b",
+// trailColor:"#1e293b"
+// })}
+// />
 
-</div>
+// </div>
 
-</div>
+// </div>
 
-)}
-
-
-{/* LIVE COUNTERS */}
-
-<div className="counter-grid">
-
-<div className="counter-card">
-<h2>{total}</h2>
-<p>Total Scans</p>
-</div>
-
-<div className="counter-card">
-<h2>{scam}</h2>
-<p>Scam Detected</p>
-</div>
-
-<div className="counter-card">
-<h2>{safe}</h2>
-<p>Safe Messages</p>
-</div>
-
-</div>
+// )}
 
 
-{/* ANALYTICS */}
+// {/* LIVE COUNTERS */}
 
-<div className="analytics">
+// <div className="counter-grid">
 
-<h2>Scam vs Safe Analytics</h2>
+// <div className="counter-card">
+// <h2>{total}</h2>
+// <p>Total Scans</p>
+// </div>
 
-<Bar data={data}/>
+// <div className="counter-card">
+// <h2>{scam}</h2>
+// <p>Scam Detected</p>
+// </div>
 
-</div>
+// <div className="counter-card">
+// <h2>{safe}</h2>
+// <p>Safe Messages</p>
+// </div>
+
+// </div>
 
 
-{/* AI CHATBOT */}
+// {/* ANALYTICS */}
 
-<div className="chatbot">
+// <div className="analytics">
 
-<h2>🤖 AI Scam Assistant</h2>
+// <h2>Scam vs Safe Analytics</h2>
 
-<textarea
-rows="4"
-placeholder="Ask AI: Is this message safe?"
-value={chat}
-onChange={(e)=>setChat(e.target.value)}
-/>
+// <Bar data={data}/>
 
-<button onClick={askAI}>
-Ask AI
-</button>
+// </div>
 
-{reply && (
 
-<div className="ai-reply">
+// {/* AI CHATBOT */}
 
-<p>{reply}</p>
+// <div className="chatbot">
 
-</div>
+// <h2>🤖 AI Scam Assistant</h2>
 
-)}
+// <textarea
+// rows="4"
+// placeholder="Ask AI: Is this message safe?"
+// value={chat}
+// onChange={(e)=>setChat(e.target.value)}
+// />
 
-</div>
+// <button onClick={askAI}>
+// Ask AI
+// </button>
 
-</div>
+// {reply && (
 
-)
+// <div className="ai-reply">
 
+// <p>{reply}</p>
+
+// </div>
+
+// )}
+
+// </div>
+
+// </div>
+
+// )
+
+// }
+
+// export default App
+
+
+
+
+// import {BrowserRouter,Routes,Route} from "react-router-dom"
+
+// import Navbar from "./components/Navbar"
+// import ScamDetector from "./pages/ScamDetector"
+// import URLScanner from "./pages/URLScanner"
+// import VoiceDetection from "./pages/VoiceDetection"
+// import Dashboard from "./pages/Dashboard"
+
+// function App(){
+
+// return(
+
+// <BrowserRouter>
+
+// <Navbar/>
+
+// <Routes>
+
+// <Route path="/" element={<ScamDetector/>}/>
+// <Route path="/url" element={<URLScanner/>}/>
+// <Route path="/voice" element={<VoiceDetection/>}/>
+// <Route path="/dashboard" element={<Dashboard/>}/>
+
+// </Routes>
+
+// </BrowserRouter>
+
+// )
+
+// }
+
+// export default App
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { BrowserRouter, Routes, Route } from "react-router-dom"
+
+// import Sidebar from "./components/Sidebar"
+// import Navbar from "./components/Navbar"
+
+// import ScamDetector from "./pages/ScamDetector"
+// import URLScanner from "./pages/URLScanner"
+// import VoiceDetection from "./pages/VoiceDetection"
+// import Dashboard from "./pages/Dashboard"
+// import History from "./pages/History"
+
+// function App(){
+
+// return(
+
+// <BrowserRouter>
+
+// <div className="layout">
+
+// {/* Sidebar */}
+
+// <Sidebar/>
+
+// {/* Main Content */}
+
+// <div className="main">
+
+// <Navbar/>
+
+// <Routes>
+
+// <Route path="/" element={<Dashboard/>}/>
+
+// <Route path="/detector" element={<ScamDetector/>}/>
+
+// <Route path="/chatbot" element={<Chatbot/>}/>
+
+// <Route path="/url" element={<URLScanner/>}/>
+
+// <Route path="/voice" element={<VoiceDetection/>}/>
+
+// <Route path="/history" element={<History/>}/>
+
+// </Routes>
+
+// </div>
+
+// </div>
+
+// </BrowserRouter>
+
+// )
+
+// }
+
+// export default App
+
+
+
+
+
+
+// import { BrowserRouter, Routes, Route } from "react-router-dom"
+
+// import Navbar from "./components/Navbar"
+// import Sidebar from "./components/Sidebar"
+
+
+// import ScamDetector from "./pages/ScamDetector"
+// import URLScanner from "./pages/URLScanner"
+// import VoiceDetection from "./pages/VoiceDetection"
+// import Chatbot from "./pages/chatbot"
+// import Dashboard from "./pages/Dashboard"
+// import History from "./pages/History"
+
+// function App(){
+
+// return(
+
+// <BrowserRouter>
+
+// <Navbar/>
+
+// <div className="container">
+
+// <Routes>
+
+// <Route path="/" element={<Dashboard/>}/>
+// <Route path="/detector" element={<ScamDetector/>}/>
+// <Route path="/chatbot" element={<Chatbot/>}/>
+// <Route path="/url" element={<URLScanner/>}/>
+// <Route path="/voice" element={<VoiceDetection/>}/>
+// <Route path="/history" element={<History/>}/>
+
+// </Routes>
+
+// </div>
+
+// </BrowserRouter>
+
+// )
+
+// }
+
+// export default App
+
+
+
+
+
+
+
+
+// import { BrowserRouter, Routes, Route } from "react-router-dom"
+
+// import Footer from "./components/Footer"
+// import Navbar from "./components/Navbar"
+// import Sidebar from "./components/Sidebar"
+
+// import ScamDetector from "./pages/ScamDetector"
+// import URLScanner from "./pages/URLScanner"
+// import VoiceDetection from "./pages/VoiceDetection"
+// import Chatbot from "./pages/chatbot"
+// import Dashboard from "./pages/Dashboard"
+// import History from "./pages/History"
+
+// function App(){
+
+// return(
+
+// <BrowserRouter>
+
+// <Navbar/>
+
+
+// <div className="container">
+
+// <Routes>
+
+// <Route path="/" element={<Dashboard/>}/>
+// <Route path="/detector" element={<ScamDetector/>}/>
+// <Route path="/chatbot" element={<Chatbot/>}/>
+// <Route path="/url" element={<URLScanner/>}/>
+// <Route path="/voice" element={<VoiceDetection/>}/>
+// <Route path="/history" element={<History/>}/>
+
+// </Routes>
+
+// <Footer/>
+// </div>
+
+
+// </BrowserRouter>
+
+// )
+
+// }
+
+// export default App
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { BrowserRouter, Routes, Route } from "react-router-dom"
+
+// import Navbar from "./components/Navbar"
+// import Footer from "./components/Footer"
+
+// import Dashboard from "./pages/Dashboard"
+// import ScamDetector from "./pages/ScamDetector"
+// import Chatbot from "./pages/Chatbot"
+// import URLScanner from "./pages/URLScanner"
+// import VoiceDetection from "./pages/VoiceDetection"
+// import History from "./pages/History"
+
+// function App(){
+
+// return(
+
+// <BrowserRouter>
+
+// <Navbar/>
+
+// <Routes>
+
+// <Route path="/" element={<Dashboard/>} />
+
+// <Route path="/detector" element={<ScamDetector/>} />
+
+// <Route path="/assistant" element={<Chatbot/>} />
+
+// <Route path="/url-scanner" element={<URLScanner/>} />
+
+// <Route path="/voice" element={<VoiceDetection/>} />
+
+// <Route path="/history" element={<History/>} />
+
+// </Routes>
+
+// <Footer/>
+
+// </BrowserRouter>
+
+// )
+
+// }
+
+// export default App
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { BrowserRouter, Routes, Route } from "react-router-dom"
+
+// import Navbar from "./components/Navbar"
+// import Footer from "./components/Footer"
+
+
+// import Dashboard from "./pages/Dashboard"
+// import ScamDetector from "./pages/ScamDetector"
+// import Chatbot from "./pages/Chatbot"
+// import URLScanner from "./pages/URLScanner"
+// import VoiceDetection from "./pages/VoiceDetection"
+// import History from "./pages/History"
+
+// function App(){
+
+// return(
+
+// <BrowserRouter>
+
+// <Navbar/>
+
+// <div className="container">
+
+// <Routes>
+
+// <Route path="/" element={<Dashboard/>} />
+
+// <Route path="/detector" element={<ScamDetector/>} />
+
+// <Route path="/assistant" element={<Chatbot/>} />
+
+// <Route path="/url-scanner" element={<URLScanner/>} />
+
+// <Route path="/voice" element={<VoiceDetection/>} />
+
+// <Route path="/history" element={<History/>} />
+
+// </Routes>
+
+// </div>
+
+// <Footer/>
+
+// </BrowserRouter>
+
+// )
+
+// }
+
+// export default App
+
+
+
+
+
+
+
+
+
+
+
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+
+import Navbar from "./components/Navbar"
+import Footer from "./components/Footer"
+
+import Dashboard from "./pages/Dashboard"
+import ScamDetector from "./pages/ScamDetector"
+import Chatbot from "./pages/Chatbot"
+import URLScanner from "./pages/URLScanner"
+import VoiceDetection from "./pages/VoiceDetection"
+import History from "./pages/History"
+
+function App() {
+  return (
+    <BrowserRouter>
+
+      <Navbar />
+
+      {/* MAIN CONTENT */}
+      <div className="container">
+
+        <Routes>
+
+          {/* Default page */}
+          <Route path="/" element={<Dashboard />} />
+
+          {/* Other pages */}
+          <Route path="/detector" element={<ScamDetector />} />
+          <Route path="/assistant" element={<Chatbot />} />
+          <Route path="/url-scanner" element={<URLScanner />} />
+          <Route path="/voice" element={<VoiceDetection />} />
+          <Route path="/history" element={<History />} />
+
+          {/* Fallback route to prevent blank screen */}
+          <Route path="*" element={<Dashboard />} />
+
+        </Routes>
+
+      </div>
+
+      <Footer />
+
+    </BrowserRouter>
+  )
 }
 
 export default App
+
 

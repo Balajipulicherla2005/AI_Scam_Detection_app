@@ -1,4 +1,4 @@
-:root {
+/* :root {
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
@@ -108,4 +108,421 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+
+
+
+body{
+background:#071429;
+font-family:Arial;
+color:white;
+margin:0;
+}
+
+.page{
+max-width:800px;
+margin:auto;
+padding:40px;
+text-align:center;
+}
+
+.card{
+background:#0f1f3d;
+padding:25px;
+border-radius:10px;
+margin-top:20px;
+}
+
+textarea{
+width:100%;
+height:120px;
+border-radius:8px;
+padding:10px;
+border:none;
+}
+
+button{
+margin-top:15px;
+padding:10px 20px;
+background:#00bfff;
+border:none;
+border-radius:6px;
+color:white;
+cursor:pointer;
+}
+
+.result-card{
+margin-top:40px;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:40px;
+background:#0f1f3d;
+padding:25px;
+border-radius:10px;
+}
+
+.meter{
+width:150px;
+height:150px;
+margin:20px auto;
+} */
+
+
+
+
+
+
+
+
+
+
+
+
+/* body{
+background:#07142b;
+font-family:Arial, sans-serif;
+margin:0;
+color:white;
+}
+
+.scam-page{
+display:flex;
+justify-content:center;
+align-items:center;
+height:80vh;
+}
+
+.scam-card{
+background:#0f1f3d;
+padding:40px;
+border-radius:12px;
+width:500px;
+text-align:center;
+box-shadow:0 10px 25px rgba(0,0,0,0.5);
+}
+
+.scam-textarea{
+width:100%;
+height:130px;
+border-radius:8px;
+border:none;
+padding:12px;
+font-size:14px;
+margin-top:20px;
+}
+
+.detect-button{
+margin-top:15px;
+padding:12px 20px;
+background:#00bfff;
+border:none;
+border-radius:6px;
+font-size:16px;
+color:white;
+cursor:pointer;
+transition:0.3s;
+}
+
+.detect-button:hover{
+background:#009acd;
+}
+
+.result-section{
+margin-top:30px;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:30px;
+}
+
+.meter{
+width:120px;
+height:120px;
+}
+
+.result-info{
+text-align:left;
+} */
+
+
+
+
+
+
+
+
+
+
+
+/* body{
+background:#07142b;
+font-family:Arial, sans-serif;
+margin:0;
+color:white;
+}
+
+/* FULL PAGE CENTER */
+
+/* .scam-page{
+display:flex;
+justify-content:center;
+align-items:center;
+height:90vh;
+} */
+
+/* CARD */
+
+/* .scam-card{
+background:#0f1f3d;
+padding:40px;
+border-radius:12px;
+width:600px;
+text-align:center;
+box-shadow:0 10px 25px rgba(0,0,0,0.5);
+}
+
+/* BIG TEXTAREA */
+
+/* .scam-textarea{
+width:100%;
+height:180px;
+border-radius:10px;
+border:none;
+padding:15px;
+font-size:16px;
+margin-top:20px;
+resize:none;
+} */
+ */
+/* BUTTON */
+
+/* .detect-button{
+margin-top:20px;
+padding:14px 30px;
+background:#00bfff;
+border:none;
+border-radius:8px;
+font-size:18px;
+color:white;
+cursor:pointer;
+transition:0.3s;
+}
+
+.detect-button:hover{
+background:#009acd;
+} */
+
+/* RESULT */
+
+/* .result-section{
+margin-top:30px;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:40px;
+} */
+
+/* SMALL METER */
+
+/* .meter{
+width:120px;
+height:120px;
+} */ */
+
+
+
+
+
+
+
+
+
+
+
+/* body{
+background:#07142b;
+font-family:Arial, sans-serif;
+margin:0;
+color:white;
+}
+
+Center page
+
+.scam-page{
+display:flex;
+justify-content:center;
+align-items:center;
+height:90vh;
+}
+
+Card container */
+
+/* .scam-card{
+background:#0f1f3d;
+padding:40px;
+border-radius:12px;
+width:650px;
+text-align:center;
+box-shadow:0 10px 25px rgba(0,0,0,0.5);
+} */
+
+/* Big textarea */
+
+/* .scam-textarea{
+width:100%;
+height:200px;
+border-radius:10px;
+border:none;
+padding:15px;
+font-size:16px;
+margin-top:20px;
+resize:none;
+}
+
+Detect button */
+
+/* .detect-button{
+margin-top:20px;
+padding:14px 30px;
+background:#00bfff;
+border:none;
+border-radius:8px;
+font-size:18px;
+color:white;
+cursor:pointer;
+transition:0.3s;
+}
+
+.detect-button:hover{
+background:#009acd;
+}
+ */
+/* Result layout */
+
+/* .result-section{
+margin-top:35px;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:40px;
+} */
+
+/* Small meter */
+
+/* .meter{
+width:120px;
+height:120px;
+}
+
+.result-info{
+text-align:left;
+}
+
+
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+body{
+background:#07142b;
+overflow-x: hidden;
+font-family:Arial;
+margin:0;
+color:white;
+}
+
+/* PAGE CENTER */
+
+.detector-page{
+display:flex;
+justify-content:center;
+align-items:center;
+height:90vh;
+}
+
+/* CARD */
+
+.detector-card{
+background:#0f1f3d;
+padding:40px;
+border-radius:12px;
+width:650px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.6);
+}
+
+/* SUBTITLE */
+
+.subtitle{
+color:#9bb3d1;
+margin-bottom:20px;
+}
+
+/* TEXTAREA */
+
+.detector-textarea{
+width:100%;
+height:180px;
+border-radius:10px;
+border:none;
+padding:15px;
+font-size:16px;
+margin-top:10px;
+resize:none;
+}
+
+/* BUTTON */
+
+.detect-btn{
+margin-top:20px;
+padding:14px 30px;
+background:#00bfff;
+border:none;
+border-radius:8px;
+font-size:18px;
+color:white;
+cursor:pointer;
+transition:0.3s;
+}
+
+.detect-btn:hover{
+background:#009acd;
+}
+
+/* RESULT */
+
+.result-container{
+margin-top:35px;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:40px;
+}
+
+.meter{
+width:120px;
+height:120px;
+}
+
+.result-text{
+text-align:left;
+}
+
+
+
+*{
+box-sizing:border-box;
 }
