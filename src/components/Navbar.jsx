@@ -1,223 +1,171 @@
-// function Navbar(){
+import {
+  NavLink,
+  useNavigate
+} from "react-router-dom";
 
-// return(
+import {
+  signOut
+} from "firebase/auth";
 
-// <div className="navbar">
+import {
+  auth
+} from "../firebase";
 
-// <input
-// type="text"
-// placeholder="Search threats..."
-// />
+import {
+  FaUserCircle
+} from "react-icons/fa";
 
-// <div className="user">
-// Admin
-// </div>
+import "./navbar.css";
 
-// </div>
+function Navbar() {
 
-// )
+  const navigate =
+    useNavigate();
 
-// }
+  // ===== CURRENT USER =====
 
-// export default Navbar
+  const user =
+    auth.currentUser;
 
+  const userName =
+    user?.displayName ||
+    user?.email?.split("@")[0] ||
+    "User";
 
+  const userEmail =
+    user?.email || "";
 
 
-// import { Link } from "react-router-dom"
-// import "./navbar.css"
 
-// function Navbar(){
+  // ===== LOGOUT FUNCTION =====
 
-// return(
+  const handleLogout =
+    async () => {
 
-//  <div className="navbar">
+      try {
 
-//  <div className="logo">
-// 🛡 AI Scam detection 
-// </div>  
- 
-// {/* <Link to="/" className="logo">
-//     🛡 AI Scam detection
-// </Link>
-//  */}
+        await signOut(auth);
 
-// <div className="nav-links">
+        navigate("/login");
 
-// <Link to="/">Dashboard</Link>
-// <Link to="/detector">AI Scam Detector</Link>
-// <Link to="/chatbot">AI Assistant</Link>
-// <Link to="/url">URL Scanner</Link>
-// <Link to="/voice">Voice Detection</Link>
-// <Link to="/history">History</Link>
+      } catch (error) {
 
-// </div>
+        console.log(error);
 
-// </div>
+      }
 
-// )
+    };
 
-// }
 
-// export default Navbar
 
+  return (
 
+    <nav className="navbar">
 
+      {/* ===== LOGO ===== */}
 
+      <div className="logo">
 
+        🛡 AI Scam detection
 
+      </div>
 
 
 
 
-// import { NavLink } from "react-router-dom"
+      {/* ===== NAVIGATION LINKS ===== */}
 
-// function Navbar(){
+      <div className="nav-links">
 
-// return(
+        <NavLink
+          to="/dashboard"
+        >
+          Dashboard
+        </NavLink>
 
-// <div className="navbar">
+        <NavLink
+          to="/detector"
+        >
+          Check Message
+        </NavLink>
 
-// <div className="logo">
-// 🛡 AI Scam detection
-// </div>
+        <NavLink
+          to="/assistant"
+        >
+          AI Assistant
+        </NavLink>
 
-// <div className="nav-links">
+        <NavLink
+          to="/url-scanner"
+        >
+          Check Link
+        </NavLink>
 
-// <NavLink to="/" className={({isActive}) => isActive ? "active" : ""}>
-// Dashboard
-// </NavLink>
+        <NavLink
+          to="/voice"
+        >
+          Check Voice
+        </NavLink>
 
-// <NavLink to="/detector" className={({isActive}) => isActive ? "active" : ""}>
-// AI Scam Detector
-// </NavLink>
+        <NavLink
+          to="/history"
+        >
+          History
+        </NavLink>
 
-// <NavLink to="/assistant" className={({isActive}) => isActive ? "active" : ""}>
-// AI Assistant
-// </NavLink>
+      </div>
 
-// <NavLink to="/url-scanner" className={({isActive}) => isActive ? "active" : ""}>
-// URL Scanner
-// </NavLink>
 
-// <NavLink to="/voice" className={({isActive}) => isActive ? "active" : ""}>
-// Voice Detection
-// </NavLink>
 
-// <NavLink to="/history" className={({isActive}) => isActive ? "active" : ""}>
-// History
-// </NavLink>
 
-// </div>
+      {/* ===== RIGHT SECTION ===== */}
 
-// </div>
+      <div className="navbar-right">
 
-// )
+        {/* ===== USER PROFILE ===== */}
 
-// }
+        <div className="user-profile">
 
-// export default Navbar
+          <div className="user-icon">
 
+            <FaUserCircle />
 
+          </div>
 
+          <div className="user-info">
 
+            <h4>
+              {userName}
+            </h4>
 
+            <p>
+              {userEmail}
+            </p>
 
+          </div>
 
+        </div>
 
 
-// import { NavLink } from "react-router-dom"
 
-// function Navbar(){
 
-// return(
+        {/* ===== LOGOUT BUTTON ===== */}
 
-// <div className="navbar">
+        <button
+          className="logout-btn"
+          onClick={handleLogout}
+        >
 
-// <div className="logo">
-// 🛡 AI Scam detection
-// </div>
+          Logout
 
-// <div className="nav-links">
+        </button>
 
-// <NavLink to="/" end>
-// Dashboard
-// </NavLink>
+      </div>
 
-// <NavLink to="/detector">
-// AI Scam Detector
-// </NavLink>
+    </nav>
 
-// <NavLink to="/assistant">
-// AI Assistant
-// </NavLink>
-
-// <NavLink to="/url-scanner">
-// URL Scanner
-// </NavLink>
-
-// <NavLink to="/voice">
-// Voice Detection
-// </NavLink>
-
-// <NavLink to="/history">
-// History
-// </NavLink>
-
-// </div>
-
-// </div>
-
-// )
-
-// }
-
-// export default Navbar
-
-
-
-
-
-
-
-
-
-
-
-
-import { NavLink } from "react-router-dom"
-import "./navbar.css"
-
-function Navbar(){
-
-return(
-
-<div className="navbar">
-
-<div className="logo">
-🛡 AI Scam detection
-</div>
-
-<div className="nav-links">
-
-<NavLink to="/" end>Dashboard</NavLink>
-
-<NavLink to="/detector">AI Scam Detector</NavLink>
-
-<NavLink to="/assistant">AI Assistant</NavLink>
-
-<NavLink to="/url-scanner">URL Scanner</NavLink>
-
-<NavLink to="/voice">Voice Detection</NavLink>
-
-<NavLink to="/history">History</NavLink>
-
-</div>
-
-</div>
-
-)
+  );
 
 }
 
-export default Navbar
+export default Navbar;

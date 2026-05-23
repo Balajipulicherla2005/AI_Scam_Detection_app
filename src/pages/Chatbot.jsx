@@ -1,584 +1,549 @@
-// import { useState } from "react"
-// import axios from "axios"
+import { useState } from "react";
 
-// function Chatbot(){
+import axios from "axios";
 
-// const [message,setMessage] = useState("")
-// const [reply,setReply] = useState("")
-// const [loading,setLoading] = useState(false)
+import { auth } from "../firebase";
 
-// const sendMessage = async () => {
+import "../pages/ui.css";
 
-// if(!message) return
+function Chatbot() {
 
-// setLoading(true)
+  // ================= STATES =================
 
-// try{
+  const [chat, setChat] =
+    useState("");
 
-// const res = await axios.post(
-// "http://localhost:5000/api/chatbot",
-// { message }
-// )
+  const [reply, setReply] =
+    useState("");
 
-// setReply(res.data.reply)
+  const [loading, setLoading] =
+    useState(false);
 
-// }catch(error){
+  const [language, setLanguage] =
+    useState("en-IN");
 
-// setReply("Server error")
+  const [audio, setAudio] =
+    useState(null);
 
-// }
 
-// setLoading(false)
 
-// }
 
-// return(
+  // ================= 🔊 SPEAK FUNCTION =================
 
-// <div style={{padding:"30px"}}>
+  const speak = async (text) => {
 
-// <h2>🤖 AI Scam Assistant</h2>
+    try {
 
-// <textarea
-// placeholder="Ask something like: Is this message a scam?"
-// value={message}
-// onChange={(e)=>setMessage(e.target.value)}
-// style={{
-// width:"400px",
-// height:"120px",
-// padding:"10px"
-// }}
-// />
+      const cleanText =
+        text.replace(/\d+\.\s*/g, "");
 
-// <br/><br/>
+      // STOP OLD AUDIO
 
-// <button onClick={sendMessage}>
-// {loading ? "Thinking..." : "Ask AI"}
-// </button>
+      if (audio) {
 
-// <br/><br/>
+        audio.pause();
 
-// {reply && (
+      }
 
-// <div
-// style={{
-// background:"#1e293b",
-// color:"white",
-// padding:"15px",
-// borderRadius:"10px",
-// width:"400px"
-// }}
-// >
+      const res = await fetch(
 
-// <strong>AI Response:</strong>
+        "http://localhost:5000/api/speak",
 
-// <p>{reply}</p>
+        {
 
-// </div>
+          method: "POST",
 
-// )}
+          headers: {
 
-// </div>
+            "Content-Type":
+              "application/json"
 
-// )
+          },
 
-// }
+          body: JSON.stringify({
 
-// export default Chatbot
+            text: cleanText,
 
+            language:
+              language.split("-")[0]
 
+          })
 
+        }
 
+      );
 
+      const blob =
+        await res.blob();
 
+      const audioUrl =
+        URL.createObjectURL(blob);
 
+      const newAudio =
+        new Audio(audioUrl);
 
+      newAudio.volume = 1;
 
-// import { useState } from "react"
-// import axios from "axios"
+      setAudio(newAudio);
 
-// function Chatbot(){
+      await newAudio.play();
 
-// const [chat,setChat] = useState("")
-// const [reply,setReply] = useState("")
-// const [loading,setLoading] = useState(false)
+    } catch (err) {
 
-// const askAI = async () => {
+      console.log(
+        "Voice Error:",
+        err
+      );
 
-// if(!chat) return
+    }
 
-// setLoading(true)
+  };
 
-// try {
 
-// const res = await axios.post(
-// "http://localhost:5000/api/ask-ai",
-// { message: chat }
-// )
 
-// setReply(res.data.reply)
 
-// } catch (err) {
+  // ================= ⏸ STOP =================
 
-// setReply("AI server error")
+  const stopVoice = () => {
 
-// }
+    if (audio) {
 
-// setLoading(false)
+      audio.pause();
 
-// }
+    }
 
-// return(
+  };
 
-// <div style={{padding:"40px"}}>
 
-// <h2>🤖 AI Scam Assistant</h2>
 
-// <textarea
-// placeholder="Ask something like: Is this message a scam?"
-// value={chat}
-// onChange={(e)=>setChat(e.target.value)}
-// style={{
-// width:"500px",
-// height:"150px",
-// padding:"15px",
-// borderRadius:"8px"
-// }}
-// />
 
-// <br/><br/>
+  // ================= ▶ RESUME =================
 
-// <button
-// onClick={askAI}
-// style={{
-// padding:"10px 20px",
-// background:"#00bfff",
-// border:"none",
-// borderRadius:"6px",
-// color:"white",
-// cursor:"pointer"
-// }}
-// >
-// {loading ? "Thinking..." : "Ask AI"}
-// </button>
+  const resumeVoice = () => {
 
-// <br/><br/>
+    if (audio) {
 
-// {reply && (
+      audio.play();
 
-// <div
-// style={{
-// background:"#1e293b",
-// color:"white",
-// padding:"20px",
-// borderRadius:"10px",
-// width:"500px"
-// }}
-// >
+    }
 
-// <strong>AI Response:</strong>
+  };
 
-// <p>{reply}</p>
 
-// </div>
 
-// )}
 
-// </div>
+  // ================= 🔁 RESTART =================
 
-// )
+  const restartVoice = () => {
 
-// }
+    if (audio) {
 
-// export default Chatbot
+      audio.currentTime = 0;
 
+      audio.play();
 
+    }
 
+  };
 
 
 
 
+  // ================= 🌐 LANGUAGE MAP =================
 
+  const getLanguageName = (code) => {
 
+    const map = {
 
+      "hi-IN": "Hindi",
+      "te-IN": "Telugu",
+      "ta-IN": "Tamil",
+      "kn-IN": "Kannada",
+      "ml-IN": "Malayalam",
+      "bn-IN": "Bengali",
+      "mr-IN": "Marathi",
+      "gu-IN": "Gujarati",
+      "pa-IN": "Punjabi"
 
+    };
 
+    return map[code] || "English";
 
+  };
 
 
 
-// import { useState } from "react"
-// import axios from "axios"
 
-// function Chatbot(){
+  // ================= 🚀 ASK AI =================
 
-// const [chat,setChat] = useState("")
-// const [reply,setReply] = useState("")
-// const [loading,setLoading] = useState(false)
+  const askAI = async () => {
 
-// const askAI = async () => {
+    if (!chat.trim()) return;
 
-// if(!chat) return
+    setLoading(true);
 
-// setLoading(true)
+    try {
 
-// try{
+      // ================= AI REQUEST =================
 
-// const res = await axios.post(
-// "http://localhost:5000/api/ask-ai",
-// { message: chat }
-// )
+      const res = await axios.post(
 
-// setReply(res.data.reply)
+        "http://localhost:5000/api/ask-ai",
 
-// }catch(err){
+        {
 
-// console.error(err)
-// setReply("⚠️ AI server error")
+          message: chat
 
-// }
+        }
 
-// setLoading(false)
+      );
 
-// }
+      let aiReply =
+        res.data.reply;
 
-// return(
 
-// <div style={{padding:"40px"}}>
 
-// <h2>🤖 AI Scam Assistant</h2>
 
-// <textarea
-// placeholder="Ask something like: Is this message a scam?"
-// value={chat}
-// onChange={(e)=>setChat(e.target.value)}
-// style={{
-// width:"500px",
-// height:"150px",
-// padding:"15px",
-// borderRadius:"8px",
-// fontSize:"14px"
-// }}
-// />
 
-// <br/><br/>
+      // ================= TRANSLATE =================
 
-// <button
-// onClick={askAI}
-// style={{
-// padding:"10px 20px",
-// background:"#00bfff",
-// border:"none",
-// borderRadius:"6px",
-// color:"white",
-// cursor:"pointer",
-// fontSize:"15px"
-// }}
-// >
-// {loading ? "Thinking..." : "Ask AI"}
-// </button>
+      if (language !== "en-IN") {
 
-// <br/><br/>
+        const translateRes =
+          await axios.post(
 
-// {reply && (
+            "http://localhost:5000/api/ask-ai",
 
-// <div
-// style={{
-// background:"#1e293b",
-// color:"white",
-// padding:"20px",
-// borderRadius:"10px",
-// width:"500px"
-// }}
-// >
+            {
 
-// <strong>AI Response:</strong>
+              message:
+                `Translate this into ${getLanguageName(language)}:\n${aiReply}`
 
-// <p style={{marginTop:"10px"}}>
-// {reply}
-// </p>
+            }
 
-// </div>
+          );
 
-// )}
+        aiReply =
+          translateRes.data.reply;
 
-// </div>
+      }
 
-// )
 
-// }
 
-// export default Chatbot
 
 
+      // ================= SHOW RESPONSE =================
 
+      setReply(aiReply);
 
 
 
 
 
+      // ================= SPEAK RESPONSE =================
 
+      speak(aiReply);
 
 
 
 
 
+      // ================= SAVE HISTORY =================
 
+      const userEmail =
+        auth.currentUser?.email;
 
+      const historyKey =
+        `scamHistory_${userEmail}`;
 
-// import { useState } from "react"
-// import axios from "axios"
+      const history =
+        JSON.parse(
 
-// function Chatbot(){
+          localStorage.getItem(historyKey)
 
-// const [chat,setChat] = useState("")
-// const [reply,setReply] = useState("")
-// const [loading,setLoading] = useState(false)
+        ) || [];
 
-// const askAI = async () => {
+      history.unshift({
 
-// if(!chat) return
+        module: "AI Assistant",
 
-// setLoading(true)
+        text: chat,
 
-// try{
+        prediction: aiReply.includes("scam")
+          ? "SCAM"
+          : "SAFE",
 
-// const res = await axios.post(
-// "http://localhost:5000/api/ask-ai",
-// { message: chat }
-// )
+        probability:
+          aiReply.includes("scam")
+            ? 85
+            : 15,
 
-// setReply(res.data.reply)
+        type: aiReply,
 
+        time:
+          new Date().toLocaleString()
 
-// // SAVE HISTORY TO LOCAL STORAGE
+      });
 
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
+      localStorage.setItem(
 
-// history.unshift({
-// module: "AI Assistant",
-// text: chat,
-// prediction: "AI Response",
-// probability: 0,
-// type: res.data.reply,
-// time: new Date().toLocaleString()
-// })
+        historyKey,
 
-// localStorage.setItem("scamHistory", JSON.stringify(history))
+        JSON.stringify(history)
 
+      );
 
-// }catch(err){
+    } catch (err) {
 
-// console.error(err)
-// setReply("⚠️ AI server error")
+      console.error(err);
 
-// }
+      setReply(
+        "⚠️ AI server error"
+      );
 
-// setLoading(false)
+    }
 
-// }
+    setLoading(false);
 
-// return(
+  };
 
-// <div style={{padding:"40px"}}>
 
-// <h2>🤖 AI Scam Assistant</h2>
 
-// <textarea
-// placeholder="Ask something like: Is this message a scam?"
-// value={chat}
-// onChange={(e)=>setChat(e.target.value)}
-// style={{
-// width:"500px",
-// height:"150px",
-// padding:"15px",
-// borderRadius:"8px",
-// fontSize:"14px"
-// }}
-// />
 
-// <br/><br/>
+  // ================= UI =================
 
-// <button
-// onClick={askAI}
-// style={{
-// padding:"10px 20px",
-// background:"#00bfff",
-// border:"none",
-// borderRadius:"6px",
-// color:"white",
-// cursor:"pointer",
-// fontSize:"15px"
-// }}
-// >
-// {loading ? "Thinking..." : "Ask AI"}
-// </button>
+  return (
 
-// <br/><br/>
+    <div className="page-container">
 
-// {reply && (
+      {/* ===== PAGE HEADER ===== */}
 
-// <div
-// style={{
-// background:"#1e293b",
-// color:"white",
-// padding:"20px",
-// borderRadius:"10px",
-// width:"500px"
-// }}
-// >
+      <h1 className="page-title">
+        🤖 AI Scam Assistant
+      </h1>
 
-// <strong>AI Response:</strong>
+      <p className="page-subtitle">
 
-// <p style={{marginTop:"10px"}}>
-// {reply}
-// </p>
+        Ask AI questions about scams,
+        phishing messages, fraud websites,
+        suspicious links, and online threats
+        with real-time intelligent analysis.
 
-// </div>
+      </p>
 
-// )}
 
-// </div>
 
-// )
 
-// }
 
-// export default Chatbot
+      {/* ===== MAIN LAYOUT ===== */}
 
+      <div className="chatbot-container">
 
+        <div className="chat-layout">
 
 
 
 
+          {/* ================= CHAT CARD ================= */}
 
+          <div className="chat-card">
 
+            <textarea
 
+              placeholder="Ask something like: Is this message a scam?"
 
+              value={chat}
 
+              onChange={(e) =>
+                setChat(e.target.value)
+              }
 
+              className="chat-input"
 
+            />
 
 
 
 
 
-import { useState } from "react"
-import axios from "axios"
+            {/* ================= LANGUAGE ================= */}
 
-function Chatbot(){
+            <div className="chat-controls">
 
-const [chat,setChat] = useState("")
-const [reply,setReply] = useState("")
-const [loading,setLoading] = useState(false)
+              <select
 
-const askAI = async () => {
+                value={language}
 
-if(!chat.trim()) return
+                onChange={(e) =>
+                  setLanguage(e.target.value)
+                }
 
-setLoading(true)
+                className="lang-select"
 
-try{
+              >
 
-const res = await axios.post(
-"http://localhost:5000/api/ask-ai",
-{ message: chat }
-)
+                <option value="en-IN">
+                  English
+                </option>
 
-const aiReply = res.data.reply
+                <option value="hi-IN">
+                  Hindi
+                </option>
 
-setReply(aiReply)
+                <option value="te-IN">
+                  Telugu
+                </option>
 
+                <option value="ta-IN">
+                  Tamil
+                </option>
 
-// SAVE HISTORY TO LOCAL STORAGE
+                <option value="kn-IN">
+                  Kannada
+                </option>
 
-const history = JSON.parse(localStorage.getItem("scamHistory")) || []
+                <option value="ml-IN">
+                  Malayalam
+                </option>
 
-history.unshift({
-module: "AI Assistant",
-text: chat,
-prediction: "AI Response",
-probability: 0,
-type: aiReply,
-time: new Date().toLocaleString()
-})
+                <option value="bn-IN">
+                  Bengali
+                </option>
 
-localStorage.setItem("scamHistory", JSON.stringify(history))
+                <option value="mr-IN">
+                  Marathi
+                </option>
 
-}catch(err){
+                <option value="gu-IN">
+                  Gujarati
+                </option>
 
-console.error(err)
-setReply("⚠️ AI server error")
+                <option value="pa-IN">
+                  Punjabi
+                </option>
+
+              </select>
+
+
+
+
+
+              {/* ================= ASK BUTTON ================= */}
+
+              <button
+
+                className="ask-btn"
+
+                onClick={askAI}
+
+              >
+
+                {loading
+                  ? "Thinking..."
+                  : "Ask AI"}
+
+              </button>
+
+            </div>
+
+
+
+
+
+            {/* ================= VOICE CONTROLS ================= */}
+
+            {reply && (
+
+              <div className="voice-controls">
+
+
+
+
+                {/* STOP */}
+
+                <button
+
+                  className="stop-btn"
+
+                  onClick={stopVoice}
+
+                >
+
+                  ⏸ Stop
+
+                </button>
+
+
+
+
+
+                {/* RESUME */}
+
+                <button
+
+                  className="resume-btn"
+
+                  onClick={resumeVoice}
+
+                >
+
+                  ▶ Resume
+
+                </button>
+
+
+
+
+
+                {/* RESTART */}
+
+                <button
+
+                  className="restart-btn"
+
+                  onClick={restartVoice}
+
+                >
+
+                  🔁 Restart
+
+                </button>
+
+              </div>
+
+            )}
+
+          </div>
+
+
+
+
+          {/* ================= RESPONSE CARD ================= */}
+
+          {reply && (
+
+            <div className="response-card">
+
+              <h3>
+                🧠 AI Response
+              </h3>
+
+              <p>
+                {reply}
+              </p>
+
+            </div>
+
+          )}
+
+        </div>
+
+      </div>
+
+    </div>
+
+  );
 
 }
 
-setLoading(false)
-
-}
-
-return(
-
-<div style={{padding:"40px"}}>
-
-<h2>🤖 AI Scam Assistant</h2>
-
-<textarea
-placeholder="Ask something like: Is this message a scam?"
-value={chat}
-onChange={(e)=>setChat(e.target.value)}
-style={{
-width:"500px",
-height:"150px",
-padding:"15px",
-borderRadius:"8px",
-fontSize:"14px"
-}}
-/>
-
-<br/><br/>
-
-<button
-onClick={askAI}
-style={{
-padding:"10px 20px",
-background:"#00bfff",
-border:"none",
-borderRadius:"6px",
-color:"white",
-cursor:"pointer",
-fontSize:"15px"
-}}
->
-{loading ? "Thinking..." : "Ask AI"}
-</button>
-
-<br/><br/>
-
-{reply && (
-
-<div
-style={{
-background:"#1e293b",
-color:"white",
-padding:"20px",
-borderRadius:"10px",
-width:"500px"
-}}
->
-
-<strong>AI Response:</strong>
-
-<p style={{marginTop:"10px"}}>
-{reply}
-</p>
-
-</div>
-
-)}
-
-</div>
-
-)
-
-}
-
-export default Chatbot
+export default Chatbot;

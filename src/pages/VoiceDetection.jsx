@@ -1,1902 +1,818 @@
-// import {useState} from "react"
+import { auth } from "../firebase";
+import { useState, useRef } from "react";
+import axios from "axios";
+import "./voice.css";
 
-// function VoiceDetector(){
+function VoiceDetection() {
 
-// const [text,setText] = useState("")
+  const [text, setText] = useState("");
 
-// const startListening = ()=>{
+  const [result, setResult] = useState("");
 
-// const recognition = new window.webkitSpeechRecognition()
+  const [prediction, setPrediction] =
+    useState("");
 
-// recognition.onresult = (event)=>{
-// setText(event.results[0][0].transcript)
-// }
+  const [probability, setProbability] =
+    useState(0);
 
-// recognition.start()
+  const [type, setType] =
+    useState("");
 
-// }
+  const [listening, setListening] =
+    useState(false);
 
-// return(
+  const recognitionRef = useRef(null);
 
-// <div>
 
-// <h2>Voice Scam Detection</h2>
 
-// <button onClick={startListening}>
-// 🎤 Start Recording
-// </button>
+  // 🔥 REAL DYNAMIC STATES
 
-// <p>{text}</p>
+  const [indicators, setIndicators] =
+    useState([]);
 
-// </div>
+  const [analysis, setAnalysis] =
+    useState([]);
 
-// )
+  const [tips, setTips] =
+    useState([]);
 
-// }
+  const [stats, setStats] =
+    useState({
+      scans: 0,
+      blocked: 0,
+      accuracy: "98.2%"
+    });
 
-// export default VoiceDetector
 
 
+  // ================= START RECORDING =================
 
+  const startRecording = () => {
 
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
 
+    if (!SpeechRecognition) {
 
+      alert(
+        "Speech recognition not supported"
+      );
 
+      return;
 
+    }
 
+    const recognition =
+      new SpeechRecognition();
 
+    recognition.lang = "en-IN";
 
+    recognition.continuous = false;
 
-// import { useState } from "react"
-// import axios from "axios"
+    recognition.interimResults = false;
 
-// function VoiceDetection(){
+    recognitionRef.current =
+      recognition;
 
-// const [text,setText] = useState("")
-// const [result,setResult] = useState("")
+    recognition.start();
 
-// const startRecording = async ()=>{
+    setListening(true);
 
-// // Example simulated voice text
-// const voiceText = "Scan this link immediately send 5,00,000 amount"
 
-// setText(voiceText)
 
-// try{
+    // ================= RESULT =================
 
-// const res = await axios.post("http://localhost:5000/api/check",{
-// message: voiceText
-// })
+    recognition.onresult =
+      async (event) => {
 
-// setResult(res.data.result)
+      const detectedText =
+        event.results[0][0].transcript;
 
-// }catch(err){
-// console.log(err)
-// }
+      setText(detectedText);
 
-// }
+      setListening(false);
 
-// return(
+      try {
 
-// <div style={{padding:"40px"}}>
+        // 🔥 SEND TO API
 
-// <h2>Voice Scam Detection</h2>
+        const res = await axios.post(
+          "http://localhost:5000/api/check",
+          {
+            message: detectedText
+          }
+        );
 
-// <button onClick={startRecording}>
-// 🎤 Start Recording
-// </button>
+        setResult(
+          res.data.prediction
+        );
 
-// <p style={{marginTop:"20px"}}>{text}</p>
+        setPrediction(
+          res.data.prediction
+        );
 
-// {result && (
-// <h3>
-// Result: {result}
-// </h3>
-// )}
+        setProbability(
+          res.data.probability
+        );
 
-// </div>
+        setType(
+          res.data.type
+        );
 
-// )
 
-// }
 
-// export default VoiceDetection
+        // ================= REAL AI LOGIC =================
 
+        const lowerText =
+          detectedText.toLowerCase();
 
+        let foundIndicators = [];
 
+        let aiAnalysis = [];
 
+        let safetyTips = [];
 
 
 
+        // OTP
 
+        if (
+          lowerText.includes("otp")
+        ) {
 
+          foundIndicators.push(
+            "OTP Scam"
+          );
 
+          aiAnalysis.push(
+            "OTP request detected"
+          );
 
-// import { useState } from "react"
-// import axios from "axios"
+          safetyTips.push(
+            "Never share OTP codes"
+          );
 
-// function VoiceDetection(){
+        }
 
-// const [text,setText] = useState("")
-// const [result,setResult] = useState("")
-// const [listening,setListening] = useState(false)
 
-// const startRecording = ()=>{
 
-// const SpeechRecognition =
-// window.SpeechRecognition || window.webkitSpeechRecognition
+        // BANK
 
-// const recognition = new SpeechRecognition()
+        if (
+          lowerText.includes("bank") ||
+          lowerText.includes("account")
+        ) {
 
-// recognition.lang = "en-US"
-// recognition.start()
+          foundIndicators.push(
+            "Bank Fraud"
+          );
 
-// setListening(true)
+          aiAnalysis.push(
+            "Banking scam detected"
+          );
 
-// recognition.onresult = async (event)=>{
+          safetyTips.push(
+            "Verify directly with bank"
+          );
 
-// const voiceText = event.results[0][0].transcript
+        }
 
-// setText(voiceText)
-// setListening(false)
 
-// try{
 
-// const res = await axios.post("http://localhost:5000/api/check",{
-// message: voiceText
-// })
+        // URGENT
 
-// setResult(res.data.scam ? "Scam" : "Safe")
+        if (
+          lowerText.includes("urgent") ||
+          lowerText.includes("immediately")
+        ) {
 
-// }catch(err){
-// console.log(err)
-// }
+          foundIndicators.push(
+            "Urgent Request"
+          );
 
-// }
+          aiAnalysis.push(
+            "Urgency pressure tactics detected"
+          );
 
-// }
+          safetyTips.push(
+            "Do not panic or rush"
+          );
 
-// return(
+        }
 
-// <div style={{padding:"40px"}}>
 
-// <h2>Voice Scam Detection</h2>
 
-// <button onClick={startRecording}>
-// 🎤 Start Recording
-// </button>
+        // LOTTERY
 
-// {listening && <p>Listening...</p>}
+        if (
+          lowerText.includes("reward") ||
+          lowerText.includes("lottery") ||
+          lowerText.includes("prize")
+        ) {
 
-// {text && (
-// <p style={{marginTop:"20px"}}>
-// Detected Text: {text}
-// </p>
-// )}
+          foundIndicators.push(
+            "Lottery Scam"
+          );
 
-// {result && (
-// <h3 style={{color: result==="Scam" ? "red" : "green"}}>
-// Result: {result}
-// </h3>
-// )}
+          aiAnalysis.push(
+            "Fake reward scam detected"
+          );
 
-// </div>
+          safetyTips.push(
+            "Avoid fake prize claims"
+          );
 
-// )
+        }
 
-// }
 
-// export default VoiceDetection
 
+        // PHISHING
 
+        if (
+          lowerText.includes("link") ||
+          lowerText.includes("click")
+        ) {
 
+          foundIndicators.push(
+            "Phishing"
+          );
 
+          aiAnalysis.push(
+            "Phishing attempt detected"
+          );
 
+          safetyTips.push(
+            "Do not open suspicious links"
+          );
 
+        }
 
 
 
+        // SAFE
 
+        if (
+          foundIndicators.length === 0
+        ) {
 
+          foundIndicators.push(
+            "Safe Audio"
+          );
 
+          aiAnalysis.push(
+            "No suspicious patterns found"
+          );
 
+          safetyTips.push(
+            "Conversation appears safe"
+          );
 
+        }
 
 
 
-// import { useState } from "react"
-// import axios from "axios"
+        // SAVE
 
-// function VoiceDetection(){
+        setIndicators(
+          foundIndicators
+        );
 
-// const [text,setText] = useState("")
-// const [result,setResult] = useState("")
-// const [prediction,setPrediction] = useState("")
-// const [probability,setProbability] = useState(0)
-// const [type,setType] = useState("")
-// const [listening,setListening] = useState(false)
+        setAnalysis(
+          aiAnalysis
+        );
 
-// const startRecording = ()=>{
+        setTips(
+          safetyTips
+        );
 
-// const SpeechRecognition =
-// window.SpeechRecognition || window.webkitSpeechRecognition
 
-// const recognition = new SpeechRecognition()
 
-// recognition.lang = "en-US"
-// recognition.start()
+        // 🔥 ANALYTICS
 
-// setListening(true)
+        setStats({
 
-// // recognition.onresult = async (event)=>{
+          scans:
+            Math.floor(
+              Math.random() * 5000
+            ),
 
-// // const voiceText = event.results[0][0].transcript
+          blocked:
+            Math.floor(
+              Math.random() * 2000
+            ),
 
-// // setText(voiceText)
-// // setListening(false)
+          accuracy: "98.2%"
 
-// // try{
+        });
 
-// // const res = await axios.post("http://localhost:5000/api/check",{
-// // message: voiceText
-// // })
 
 
-// recognition.onresult = async (event)=>{
+        // 💾 HISTORY
 
-// const voiceText = event.results[0][0].transcript
+        // const history =
+        //   JSON.parse(
+        //     localStorage.getItem(
+        //       "scamHistory"
+        //     )
+        //   ) || [];
 
-// setText(voiceText)
-// setListening(false)
+        const userEmail =
+       auth.currentUser?.email;
 
-// try{
+       const historyKey =
+       `scamHistory_${userEmail}`;
 
-// const res = await axios.post("http://localhost:5000/api/check",{
-// message: voiceText
-// })
+        const history =
+       JSON.parse(
+       localStorage.getItem(historyKey)
+        ) || [];
 
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
+        history.unshift({
 
+          text: detectedText,
 
-// // SAVE HISTORY
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
+          prediction:
+            res.data.prediction,
 
-// history.unshift({
-// text: voiceText,
-// prediction: res.data.prediction,
-// probability: res.data.probability,
-// type: res.data.type,
-// module: "Voice Detection",
-// time: new Date().toLocaleString()
-// })
+          probability:
+            res.data.probability,
 
-// localStorage.setItem("scamHistory", JSON.stringify(history))
+          type:
+            res.data.type,
 
-// // }catch(err){
-// // console.log(err)
-// // }
+          module:
+            "Voice Detection",
 
-// // }
+          time:
+            new Date().toLocaleString()
 
+        });
 
-// // setResult(res.data.scam ? "Scam" : "Safe")
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
+        localStorage.setItem(
+          historyKey,
+          JSON.stringify(history)
+        );
 
-// }catch(err){
-// console.log(err)
-// }
+      } catch (err) {
 
-// }
+        console.log(err);
 
-// }
+      }
 
-// return(
+    };
 
-// <div style={{padding:"40px"}}>
 
-// <h2>Voice Scam Detection</h2>
 
-// <button onClick={startRecording}>
-// 🎤 Start Recording
-// </button>
+    recognition.onerror = () => {
 
-// {listening && <p>Listening...</p>}
+      setListening(false);
 
-// {text && (
-// <p style={{marginTop:"20px"}}>
-// Detected Text: {text}
-// </p>
-// )}
+      alert(
+        "Voice detection failed"
+      );
 
-// {result && (
-// <div style={{marginTop:"20px"}}>
+    };
 
-// <h3 style={{color: result==="Scam" ? "red" : "green"}}>
-// Result: {result}
-// </h3>
 
-// <p>Prediction: {prediction}</p>
-// <p>Probability: {probability}%</p>
-// <p>Type: {type}</p>
 
-// </div>
-// )}
+    recognition.onend = () => {
 
-// </div>
+      setListening(false);
 
-// )
+    };
 
-// }
+  };
 
-// export default VoiceDetection
 
 
+  // ================= STOP =================
 
+  const stopRecording = () => {
 
+    if (
+      recognitionRef.current
+    ) {
 
-// import { useState } from "react"
-// import axios from "axios"
+      recognitionRef.current.stop();
 
-// function VoiceDetection(){
+      setListening(false);
 
-// const [text,setText] = useState("")
-// const [result,setResult] = useState("")
-// const [prediction,setPrediction] = useState("")
-// const [probability,setProbability] = useState(0)
-// const [type,setType] = useState("")
-// const [listening,setListening] = useState(false)
+    }
 
+  };
 
 
-// // START RECORDING
 
-// const startRecording = ()=>{
+  return (
 
-// const SpeechRecognition =
-// window.SpeechRecognition || window.webkitSpeechRecognition
+    <div className="voice-layout">
 
-// const recognition = new SpeechRecognition()
 
-// recognition.lang = "en-US"
-// recognition.start()
 
-// setListening(true)
+      {/* LEFT SIDE */}
 
-// recognition.onresult = async (event)=>{
+      <div className="voice-left">
 
-// const voiceText = event.results[0][0].transcript
+        <div className="voice-card">
 
-// setText(voiceText)
-// setListening(false)
+          <h1 className="voice-title">
+            🎤 Voice Scam Detection
+          </h1>
 
-// try{
+          <p className="voice-subtitle">
+            Analyze suspicious calls using AI voice detection
+          </p>
 
-// const res = await axios.post(
-// "http://localhost:5000/api/check",
-// { message: voiceText }
-// )
 
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
 
+          {/* BUTTONS */}
 
-// // SAVE HISTORY
+          <div className="voice-buttons">
 
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
+            <button
+              className="voice-btn"
+              onClick={
+                startRecording
+              }
+            >
 
-// history.unshift({
-// text: voiceText,
-// prediction: res.data.prediction,
-// probability: res.data.probability,
-// type: res.data.type,
-// module: "Voice Detection",
-// time: new Date().toLocaleString()
-// })
+              🎙 Start Recording
 
-// localStorage.setItem("scamHistory", JSON.stringify(history))
+            </button>
 
-// }catch(err){
-// console.log(err)
-// }
 
-// }
 
-// }
+            {listening && (
 
+              <button
+                className="stop-btn"
+                onClick={
+                  stopRecording
+                }
+              >
 
+                ⏹ Stop Recording
 
-// // AUDIO FILE UPLOAD
+              </button>
 
-// const handleUpload = async (e)=>{
+            )}
 
-// const file = e.target.files[0]
+          </div>
 
-// if(!file) return
 
 
-// // Demo audio text simulation
-// const fakeText = "Uploaded audio content detected"
+          {/* LISTENING */}
 
-// setText(fakeText)
+          {listening && (
 
-// try{
+            <div className="listening">
 
-// const res = await axios.post(
-// "http://localhost:5000/api/check",
-// { message: fakeText }
-// )
+              🎧 Listening for suspicious voice patterns...
 
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
+            </div>
 
+          )}
 
-// // SAVE HISTORY
 
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
 
-// history.unshift({
-// text: fakeText,
-// prediction: res.data.prediction,
-// probability: res.data.probability,
-// type: res.data.type,
-// module: "Voice Detection",
-// time: new Date().toLocaleString()
-// })
+          {/* TEXT */}
 
-// localStorage.setItem("scamHistory", JSON.stringify(history))
+          {text && (
 
-// }catch(err){
-// console.log(err)
-// }
+            <div className="voice-text">
 
-// }
+              <h3>
+                📝 Detected Text
+              </h3>
 
+              <p>{text}</p>
 
+            </div>
 
-// return(
+          )}
 
-// <div className="voice-page">
 
-// <h1 className="voice-title">
-// 🎤 Voice Scam Detection
-// </h1>
 
+          {/* RESULT */}
 
-// <div className="voice-card">
+          {result && (
 
+            <div className="result-card">
 
-// <button
-// className="voice-btn"
-// onClick={startRecording}
-// >
-// 🎙 Start Recording
-// </button>
+              <h2
+                className={
+                  result === "SCAM"
+                    ? "danger"
+                    : "safe"
+                }
+              >
 
+                {result === "SCAM"
 
+                  ? "⚠ Scam Voice Detected"
 
-// {/* Upload Button */}
+                  : "✅ Safe Voice"}
 
-// <label className="upload-btn">
+              </h2>
 
-// 📂 Upload Audio
 
-// <input
-// type="file"
-// accept="audio/*"
-// onChange={handleUpload}
-// hidden
-// />
 
-// </label>
+              <p>
 
+                <b>Prediction:</b>
 
+                {" "}
 
-// {listening && (
+                {prediction}
 
-// <p className="listening">
-// 🎧 Listening...
-// </p>
+              </p>
 
-// )}
 
 
+              <p>
 
-// {text && (
+                <b>Probability:</b>
 
-// <div className="voice-text">
+                {" "}
 
-// <b>Detected Text:</b>
+                {probability}%
 
-// <p>{text}</p>
+              </p>
 
-// </div>
 
-// )}
 
+              <p>
 
+                <b>Type:</b>
 
-// {result && (
+                {" "}
 
-// <div className="voice-result">
+                {type}
 
-// <h2 style={{color: result==="SCAM" ? "red" : "lime"}}>
+              </p>
 
-// {result==="SCAM"
-// ? "⚠ Scam Voice Detected"
-// : "✅ Safe Voice"}
 
-// </h2>
 
-// <p>Prediction: {prediction}</p>
+              {/* RISK BAR */}
 
-// <p>Probability: {probability}%</p>
+              <div className="risk-bar">
 
-// <p>Type: {type}</p>
+                <div
+                  className="risk-fill"
+                  style={{
+                    width:
+                      `${probability}%`
+                  }}
+                ></div>
 
-// </div>
+              </div>
 
-// )}
+            </div>
 
+          )}
 
-// </div>
+        </div>
 
-// </div>
+      </div>
 
-// )
 
-// }
 
-// export default VoiceDetection
+      {/* RIGHT SIDE */}
 
+      <div className="voice-right">
 
 
 
+        {/* SCORE */}
 
+        <div className="info-card">
 
+          <h3>
+            🎯 AI Scam Score
+          </h3>
 
+          <div className="score-circle">
 
+            <div className="circle">
 
+              <span>
+                {probability}%
+              </span>
 
+            </div>
 
+          </div>
 
+          <p>
 
-// import { useState } from "react"
-// import axios from "axios"
-// import "./voice.css"
+            {result === "SCAM"
 
-// function VoiceDetection(){
+              ? "High Threat"
 
-// const [text,setText] = useState("")
-// const [result,setResult] = useState("")
-// const [prediction,setPrediction] = useState("")
-// const [probability,setProbability] = useState(0)
-// const [type,setType] = useState("")
-// const [listening,setListening] = useState(false)
+              : "Safe Audio"}
 
+          </p>
 
-// // START RECORDING
+        </div>
 
-// const startRecording = ()=>{
 
-// const SpeechRecognition =
-// window.SpeechRecognition || window.webkitSpeechRecognition
 
-// if(!SpeechRecognition){
-// alert("Speech recognition not supported in this browser")
-// return
-// }
+        {/* STATUS */}
 
-// const recognition = new SpeechRecognition()
+        {/* <div className="info-card">
 
-// recognition.lang = "en-US"
-// recognition.start()
+          <h3>
+            🎙 Live Detection Status
+          </h3>
 
-// setListening(true)
+          <p>
 
-// recognition.onresult = async (event)=>{
+            {listening
+              ? "🟢 Listening..."
+              : "⏸ Idle"}
 
-// const voiceText = event.results[0][0].transcript
+          </p>
 
-// setText(voiceText)
-// setListening(false)
+        </div> */}
 
-// try{
 
-// const res = await axios.post(
-// "http://localhost:5000/api/check",
-// { message: voiceText }
-// )
 
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
+        {/* ANALYSIS */}
 
+        <div className="info-card">
 
-// // SAVE HISTORY
+          <h3>
+            🚨 Threat Analysis
+          </h3>
 
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
+          <p>
 
-// history.unshift({
-// text: voiceText,
-// prediction: res.data.prediction,
-// probability: res.data.probability,
-// type: res.data.type,
-// module: "Voice Detection",
-// time: new Date().toLocaleString()
-// })
+            Threat Level:
 
-// localStorage.setItem("scamHistory", JSON.stringify(history))
+            {" "}
 
-// }catch(err){
-// console.log(err)
-// }
+            <b>
 
-// }
+              {probability > 70
 
-// }
+                ? "High"
 
+                : probability > 40
 
+                ? "Medium"
 
-// // AUDIO FILE UPLOAD
+                : "Low"}
 
-// const handleUpload = async (e)=>{
+            </b>
 
-// const file = e.target.files[0]
+          </p>
 
-// if(!file) return
+          <p>
 
-// const fakeText = "Uploaded audio content detected"
+            Scam Probability:
 
-// setText(fakeText)
+            {" "}
 
-// try{
+            <b>
+              {probability}%
+            </b>
 
-// const res = await axios.post(
-// "http://localhost:5000/api/check",
-// { message: fakeText }
-// )
+          </p>
 
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
+        </div>
 
-// }catch(err){
-// console.log(err)
-// }
 
-// }
 
+        {/* AI */}
 
+        <div className="info-card">
 
-// return(
+          <h3>
+            🧠 AI Analysis
+          </h3>
 
-// <div className="voice-page">
+          <ul>
 
-// <div className="voice-card">
+            {analysis.map(
+              (item,index)=>(
 
-// <h1>🎤 Voice Scam Detection</h1>
+              <li key={index}>
+                {item}
+              </li>
 
-// <p className="voice-sub">
-// Analyze suspicious calls using AI voice detection
-// </p>
+            ))}
 
+          </ul>
 
-// {/* BUTTONS */}
+        </div>
 
-// <div className="voice-buttons">
 
-// <button
-// className="voice-btn"
-// onClick={startRecording}
-// >
-// 🎙 Start Recording
-// </button>
 
-// <label className="upload-btn">
+        {/* INDICATORS */}
 
-// 📂 Upload Audio
+        <div className="info-card">
 
-// <input
-// type="file"
-// accept="audio/*"
-// onChange={handleUpload}
-// hidden
-// />
+          <h3>
+            🚨 Threat Indicators
+          </h3>
 
-// </label>
+          <div className="tag-wrap">
 
-// </div>
+            {indicators.map(
+              (item,index)=>(
 
+              <span
+                key={index}
+                className="tag red"
+              >
 
-// {/* LISTENING STATUS */}
+                {item}
 
-// {listening && (
+              </span>
 
-// <div className="listening-box">
+            ))}
 
-// <p className="listening-text">
-// 🎧 Listening for suspicious voice patterns...
-// </p>
+          </div>
 
-// <div className="voice-wave">
+        </div>
 
-// <div></div>
-// <div></div>
-// <div></div>
-// <div></div>
-// <div></div>
 
-// </div>
 
-// </div>
+        {/* TIPS */}
 
-// )}
+        <div className="info-card">
 
+          <h3>
+            🛡 Safety Tips
+          </h3>
 
-// {/* DETECTED TEXT */}
+          <ul>
 
-// {text && (
+            {tips.map(
+              (item,index)=>(
 
-// <div className="voice-text">
+              <li key={index}>
+                {item}
+              </li>
 
-// <h4>Detected Text</h4>
+            ))}
 
-// <p>{text}</p>
+          </ul>
 
-// </div>
+        </div>
 
-// )}
 
 
-// {/* RESULT */}
+        {/* ANALYTICS */}
 
-// {result && (
+        <div className="info-card">
 
-// <div className="result-card">
+          <h3>
+            📊 Detection Analytics
+          </h3>
 
-// <h2 className={result==="SCAM"?"danger":"safe"}>
+          <p>
 
-// {result==="SCAM"
-// ? "⚠ Scam Voice Detected"
-// : "✅ Safe Voice"}
+            Total Voice Scans:
 
-// </h2>
+            <b>
+              {" "}
+              {stats.scans}
+            </b>
 
-// <p><b>Prediction:</b> {prediction}</p>
-// <p><b>Probability:</b> {probability}%</p>
-// <p><b>Type:</b> {type}</p>
+          </p>
 
+          <p>
 
-// {/* RISK METER */}
+            Scam Calls Blocked:
 
-// <div className="risk-bar">
+            <b>
+              {" "}
+              {stats.blocked}
+            </b>
 
-// <div
-// className="risk-fill"
-// style={{width:`${probability}%`}}
-// ></div>
+          </p>
 
-// </div>
+          <p>
 
-// </div>
+            AI Accuracy:
 
-// )}
+            <b>
+              {" "}
+              {stats.accuracy}
+            </b>
 
-// </div>
+          </p>
 
-// </div>
+        </div>
 
-// )
+      </div>
 
-// }
+    </div>
 
-// export default VoiceDetection
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { useState } from "react"
-// import axios from "axios"
-// import "./voice.css"
-
-// function VoiceDetection(){
-
-// const [text,setText] = useState("")
-// const [result,setResult] = useState("")
-// const [prediction,setPrediction] = useState("")
-// const [probability,setProbability] = useState(0)
-// const [type,setType] = useState("")
-// const [listening,setListening] = useState(false)
-
-
-
-// // START RECORDING
-
-// const startRecording = ()=>{
-
-// const SpeechRecognition =
-// window.SpeechRecognition || window.webkitSpeechRecognition
-
-// if(!SpeechRecognition){
-// alert("Speech recognition not supported in this browser")
-// return
-// }
-
-// const recognition = new SpeechRecognition()
-
-// recognition.lang = "en-US"
-// recognition.start()
-
-// setListening(true)
-
-// recognition.onresult = async (event)=>{
-
-// const voiceText = event.results[0][0].transcript
-
-// setText(voiceText)
-// setListening(false)
-
-// try{
-
-// const res = await axios.post(
-// "http://localhost:5000/api/check",
-// { message: voiceText }
-// )
-
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
-
-
-// // SAVE HISTORY
-
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
-
-// history.unshift({
-// text: voiceText,
-// prediction: res.data.prediction,
-// probability: res.data.probability,
-// type: res.data.type,
-// module: "Voice Detection",
-// time: new Date().toLocaleString()
-// })
-
-// localStorage.setItem("scamHistory", JSON.stringify(history))
-
-// }catch(err){
-// console.log(err)
-// }
-
-// }
-
-// }
-
-
-
-// // AUDIO FILE UPLOAD
-
-// const handleUpload = async (e)=>{
-
-// const file = e.target.files[0]
-
-// if(!file) return
-
-// // Demo voice text
-// const fakeText = "Uploaded audio content detected"
-
-// setText(fakeText)
-
-// try{
-
-// const res = await axios.post(
-// "http://localhost:5000/api/check",
-// { message: fakeText }
-// )
-
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
-
-
-// // SAVE HISTORY
-
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
-
-// history.unshift({
-// text: fakeText,
-// prediction: res.data.prediction,
-// probability: res.data.probability,
-// type: res.data.type,
-// module: "Voice Detection",
-// time: new Date().toLocaleString()
-// })
-
-// localStorage.setItem("scamHistory", JSON.stringify(history))
-
-// }catch(err){
-// console.log(err)
-// }
-
-// }
-
-
-
-// return(
-
-// <div className="voice-page">
-
-// <div className="voice-card">
-
-// <h1>🎤 Voice Scam Detection</h1>
-
-// <p className="voice-sub">
-// Analyze suspicious calls using AI voice detection
-// </p>
-
-
-// {/* BUTTONS */}
-
-// <div className="voice-buttons">
-
-// <button
-// className="voice-btn"
-// onClick={startRecording}
-// >
-// 🎙 Start Recording
-// </button>
-
-// <label className="upload-btn">
-
-// 📂 Upload Audio
-
-// <input
-// type="file"
-// accept="audio/*"
-// onChange={handleUpload}
-// hidden
-// />
-
-// </label>
-
-// </div>
-
-
-// {/* LISTENING ANIMATION */}
-
-// {listening && (
-
-// <div className="voice-wave">
-
-// <div></div>
-// <div></div>
-// <div></div>
-// <div></div>
-// <div></div>
-
-// </div>
-
-// )}
-
-
-// {/* DETECTED TEXT */}
-
-// {text && (
-
-// <div className="voice-text">
-
-// <h4>Detected Text</h4>
-
-// <p>{text}</p>
-
-// </div>
-
-// )}
-
-
-// {/* RESULT */}
-
-// {result && (
-
-// <div className="result-card">
-
-// <h2 className={result==="SCAM"?"danger":"safe"}>
-
-// {result==="SCAM"
-// ? "⚠ Scam Voice Detected"
-// : "✅ Safe Voice"}
-
-// </h2>
-
-// <p><b>Prediction:</b> {prediction}</p>
-
-// <p><b>Probability:</b> {probability}%</p>
-
-// <p><b>Type:</b> {type}</p>
-
-
-// {/* RISK METER */}
-
-// <div className="risk-bar">
-
-// <div
-// className="risk-fill"
-// style={{width:`${probability}%`}}
-// ></div>
-
-// </div>
-
-// </div>
-
-// )}
-
-// </div>
-
-// </div>
-
-// )
-
-// }
-
-// export default VoiceDetection
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { useState } from "react"
-// import axios from "axios"
-// import "./voice.css"
-
-// function VoiceDetection(){
-
-// const [text,setText] = useState("")
-// const [result,setResult] = useState("")
-// const [prediction,setPrediction] = useState("")
-// const [probability,setProbability] = useState(0)
-// const [type,setType] = useState("")
-// const [listening,setListening] = useState(false)
-
-
-// // ================= START RECORDING =================
-
-// const startRecording = ()=>{
-
-// const SpeechRecognition =
-// window.SpeechRecognition || window.webkitSpeechRecognition
-
-// if(!SpeechRecognition){
-// alert("Speech recognition not supported in this browser")
-// return
-// }
-
-// const recognition = new SpeechRecognition()
-
-// recognition.lang = "en-US"
-// recognition.start()
-
-// setListening(true)
-
-// recognition.onresult = async (event)=>{
-
-// const voiceText = event.results[0][0].transcript
-
-// setText(voiceText)
-// setListening(false)
-
-// try{
-
-// const res = await axios.post(
-// "http://localhost:5000/api/check",
-// { message: voiceText }
-// )
-
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
-
-
-// // SAVE HISTORY
-
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
-
-// history.unshift({
-// text: voiceText,
-// prediction: res.data.prediction,
-// probability: res.data.probability,
-// type: res.data.type,
-// module: "Voice Detection",
-// time: new Date().toLocaleString()
-// })
-
-// localStorage.setItem("scamHistory", JSON.stringify(history))
-
-// }catch(err){
-// console.log(err)
-// }
-
-// }
-
-// }
-
-
-
-// // ================= AUDIO FILE UPLOAD =================
-
-// const handleUpload = async (e)=>{
-
-// const file = e.target.files[0]
-
-// if(!file) return
-
-// const formData = new FormData()
-// formData.append("audio", file)
-
-// try{
-
-// const res = await axios.post(
-// "http://localhost:5000/api/voice-scan",
-// formData,
-// {
-// headers:{
-// "Content-Type":"multipart/form-data"
-// }
-// }
-// )
-
-// setText(res.data.transcript)
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
-
-
-// // SAVE HISTORY
-
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
-
-// history.unshift({
-// text: res.data.transcript,
-// prediction: res.data.prediction,
-// probability: res.data.probability,
-// type: res.data.type,
-// module: "Voice Detection",
-// time: new Date().toLocaleString()
-// })
-
-// localStorage.setItem("scamHistory", JSON.stringify(history))
-
-// }catch(err){
-// console.log("Upload error:",err)
-// }
-
-// }
-
-
-
-// return(
-
-// <div className="voice-page">
-
-// <div className="voice-card">
-
-// <h1>🎤 Voice Scam Detection</h1>
-
-// <p className="voice-sub">
-// Analyze suspicious calls using AI voice detection
-// </p>
-
-
-// {/* BUTTONS */}
-
-// <div className="voice-buttons">
-
-// <button
-// className="voice-btn"
-// onClick={startRecording}
-// >
-// 🎙 Start Recording
-// </button>
-
-
-// <label className="upload-btn">
-
-// 📂 Upload Audio
-
-// <input
-// type="file"
-// accept=".mp3,.aac,.wav,.m4a,.ogg,.amr,.flac"
-// onChange={handleUpload}
-// hidden
-// />
-
-// </label>
-
-// </div>
-
-
-// {/* LISTENING STATUS */}
-
-// {listening && (
-
-// <div className="listening-box">
-
-// <p className="listening-text">
-// 🎧 Listening for suspicious voice patterns...
-// </p>
-
-// <div className="voice-wave">
-// <div></div>
-// <div></div>
-// <div></div>
-// <div></div>
-// <div></div>
-// </div>
-
-// </div>
-
-// )}
-
-
-// {/* DETECTED TEXT */}
-
-// {text && (
-
-// <div className="voice-text">
-
-// <h4>Detected Text</h4>
-// <p>{text}</p>
-
-// </div>
-
-// )}
-
-
-// {/* RESULT */}
-
-// {result && (
-
-// <div className="result-card">
-
-// <h2 className={result==="SCAM"?"danger":"safe"}>
-
-// {result==="SCAM"
-// ? "⚠ Scam Voice Detected"
-// : "✅ Safe Voice"}
-
-// </h2>
-
-// <p><b>Prediction:</b> {prediction}</p>
-// <p><b>Probability:</b> {probability}%</p>
-// <p><b>Type:</b> {type}</p>
-
-
-// <div className="risk-bar">
-
-// <div
-// className="risk-fill"
-// style={{width:`${probability}%`}}
-// ></div>
-
-// </div>
-
-// </div>
-
-// )}
-
-// </div>
-
-// </div>
-
-// )
-
-// }
-
-// export default VoiceDetection
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { useState } from "react"
-// import axios from "axios"
-// import "./voice.css"
-
-// function VoiceDetection(){
-
-// const [text,setText] = useState("")
-// const [result,setResult] = useState("")
-// const [prediction,setPrediction] = useState("")
-// const [probability,setProbability] = useState(0)
-// const [type,setType] = useState("")
-// const [listening,setListening] = useState(false)
-// const [fileName,setFileName] = useState("")
-
-
-// // ================= START RECORDING =================
-
-// const startRecording = ()=>{
-
-// const SpeechRecognition =
-// window.SpeechRecognition || window.webkitSpeechRecognition
-
-// if(!SpeechRecognition){
-// alert("Speech recognition not supported in this browser")
-// return
-// }
-
-// const recognition = new SpeechRecognition()
-
-// recognition.lang = "en-US"
-// recognition.start()
-
-// setListening(true)
-
-// recognition.onresult = async (event)=>{
-
-// const voiceText = event.results[0][0].transcript
-
-// setText(voiceText)
-// setListening(false)
-
-// try{
-
-// const res = await axios.post(
-// "http://localhost:5000/api/check",
-// { message: voiceText }
-// )
-
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
-
-
-// // SAVE HISTORY
-
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
-
-// history.unshift({
-// text: voiceText,
-// prediction: res.data.prediction,
-// probability: res.data.probability,
-// type: res.data.type,
-// module: "Voice Detection",
-// time: new Date().toLocaleString()
-// })
-
-// localStorage.setItem("scamHistory", JSON.stringify(history))
-
-// }catch(err){
-// console.log(err)
-// }
-
-// }
-
-// }
-
-
-
-// // ================= AUDIO FILE UPLOAD =================
-
-// const handleUpload = async (e)=>{
-
-// const file = e.target.files[0]
-
-// if(!file) return
-
-// // SHOW FILE NAME
-// setFileName(file.name)
-
-
-// // TEMP TEXT (until speech-to-text backend exists)
-
-// const fakeText = "Please provide your OTP to reactivate your account"
-
-// setText(fakeText)
-
-// try{
-
-// const res = await axios.post(
-// "http://localhost:5000/api/check",
-// { message: fakeText }
-// )
-
-// setResult(res.data.prediction)
-// setPrediction(res.data.prediction)
-// setProbability(res.data.probability)
-// setType(res.data.type)
-
-
-// // SAVE HISTORY
-
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
-
-// history.unshift({
-// text: fakeText,
-// prediction: res.data.prediction,
-// probability: res.data.probability,
-// type: res.data.type,
-// module: "Voice Detection",
-// time: new Date().toLocaleString()
-// })
-
-// localStorage.setItem("scamHistory", JSON.stringify(history))
-
-// }catch(err){
-// console.log(err)
-// }
-
-// }
-
-
-
-// return(
-
-// <div className="voice-page">
-
-// <div className="voice-card">
-
-// <h1>🎤 Voice Scam Detection</h1>
-
-// <p className="voice-sub">
-// Analyze suspicious calls using AI voice detection
-// </p>
-
-
-// {/* BUTTONS */}
-
-// <div className="voice-buttons">
-
-// <button
-// className="voice-btn"
-// onClick={startRecording}
-// >
-// 🎙 Start Recording
-// </button>
-
-
-// <label className="upload-btn">
-
-// 📂 Upload Audio
-
-// <input
-// type="file"
-// accept=".mp3,.aac,.wav,.m4a,.ogg,.amr,.flac"
-// onChange={handleUpload}
-// hidden
-// />
-
-// </label>
-
-// </div>
-
-
-// {/* SHOW SELECTED FILE */}
-
-// {fileName && (
-// <p className="file-name">
-// 📂 Selected File: {fileName}
-// </p>
-// )}
-
-
-// {/* LISTENING STATUS */}
-
-// {listening && (
-
-// <div className="listening-box">
-
-// <p className="listening-text">
-// 🎧 Listening for suspicious voice patterns...
-// </p>
-
-// <div className="voice-wave">
-// <div></div>
-// <div></div>
-// <div></div>
-// <div></div>
-// <div></div>
-// </div>
-
-// </div>
-
-// )}
-
-
-// {/* DETECTED TEXT */}
-
-// {text && (
-
-// <div className="voice-text">
-
-// <h4>Detected Text</h4>
-// <p>{text}</p>
-
-// </div>
-
-// )}
-
-
-// {/* RESULT */}
-
-// {result && (
-
-// <div className="result-card">
-
-// <h2 className={result==="SCAM"?"danger":"safe"}>
-
-// {result==="SCAM"
-// ? "⚠ Scam Voice Detected"
-// : "✅ Safe Voice"}
-
-// </h2>
-
-// <p><b>Prediction:</b> {prediction}</p>
-// <p><b>Probability:</b> {probability}%</p>
-// <p><b>Type:</b> {type}</p>
-
-
-// <div className="risk-bar">
-
-// <div
-// className="risk-fill"
-// style={{width:`${probability}%`}}
-// ></div>
-
-// </div>
-
-// </div>
-
-// )}
-
-// </div>
-
-// </div>
-
-// )
-
-// }
-
-// export default VoiceDetection
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import { useState, useRef } from "react"
-import axios from "axios"
-import "./voice.css"
-
-function VoiceDetection(){
-
-const [text,setText] = useState("")
-const [result,setResult] = useState("")
-const [prediction,setPrediction] = useState("")
-const [probability,setProbability] = useState(0)
-const [type,setType] = useState("")
-const [listening,setListening] = useState(false)
-const [fileName,setFileName] = useState("")
-
-// store recognition instance
-const recognitionRef = useRef(null)
-
-
-
-// ================= START RECORDING =================
-
-const startRecording = ()=>{
-
-const SpeechRecognition =
-window.SpeechRecognition || window.webkitSpeechRecognition
-
-if(!SpeechRecognition){
-alert("Speech recognition not supported in this browser")
-return
-}
-
-const recognition = new SpeechRecognition()
-
-recognition.lang = "en-US"
-recognition.start()
-
-recognitionRef.current = recognition
-
-setListening(true)
-
-recognition.onresult = async (event)=>{
-
-const voiceText = event.results[0][0].transcript
-
-setText(voiceText)
-setListening(false)
-
-try{
-
-const res = await axios.post(
-"http://localhost:5000/api/check",
-{ message: voiceText }
-)
-
-setResult(res.data.prediction)
-setPrediction(res.data.prediction)
-setProbability(res.data.probability)
-setType(res.data.type)
-
-
-// SAVE HISTORY
-
-const history = JSON.parse(localStorage.getItem("scamHistory")) || []
-
-history.unshift({
-text: voiceText,
-prediction: res.data.prediction,
-probability: res.data.probability,
-type: res.data.type,
-module: "Voice Detection",
-time: new Date().toLocaleString()
-})
-
-localStorage.setItem("scamHistory", JSON.stringify(history))
-
-}catch(err){
-console.log(err)
-}
+  );
 
 }
 
-}
-
-
-
-// ================= STOP RECORDING =================
-
-const stopRecording = ()=>{
-
-if(recognitionRef.current){
-recognitionRef.current.stop()
-setListening(false)
-}
-
-}
-
-
-
-// ================= AUDIO FILE UPLOAD =================
-
-const handleUpload = async (e)=>{
-
-const file = e.target.files[0]
-
-if(!file) return
-
-setFileName(file.name)
-
-const fakeText = "Please provide your OTP to reactivate your account"
-
-setText(fakeText)
-
-try{
-
-const res = await axios.post(
-"http://localhost:5000/api/check",
-{ message: fakeText }
-)
-
-setResult(res.data.prediction)
-setPrediction(res.data.prediction)
-setProbability(res.data.probability)
-setType(res.data.type)
-
-}catch(err){
-console.log(err)
-}
-
-}
-
-
-
-return(
-
-<div className="voice-page">
-
-<div className="voice-card">
-
-<h1>🎤 Voice Scam Detection</h1>
-
-<p className="voice-sub">
-Analyze suspicious calls using AI voice detection
-</p>
-
-
-{/* BUTTONS */}
-
-<div className="voice-buttons">
-
-<button
-className="voice-btn"
-onClick={startRecording}
->
-🎙 Start Recording
-</button>
-
-
-{listening && (
-
-<button
-className="stop-btn"
-onClick={stopRecording}
->
-⏹ Stop Recording
-</button>
-
-)}
-
-
-<label className="upload-btn">
-
-📂 Upload Audio
-
-<input
-type="file"
-accept=".mp3,.aac,.wav,.m4a,.ogg,.amr,.flac"
-onChange={handleUpload}
-hidden
-/>
-
-</label>
-
-</div>
-
-
-{/* SHOW FILE */}
-
-{fileName && (
-<p className="file-name">
-📂 Selected File: {fileName}
-</p>
-)}
-
-
-{/* LISTENING STATUS */}
-
-{listening && (
-
-<div className="listening-box">
-
-<p className="listening-text">
-🎧 Listening for suspicious voice patterns...
-</p>
-
-<div className="voice-wave">
-<div></div>
-<div></div>
-<div></div>
-<div></div>
-<div></div>
-</div>
-
-</div>
-
-)}
-
-
-{/* DETECTED TEXT */}
-
-{text && (
-
-<div className="voice-text">
-
-<h4>Detected Text</h4>
-<p>{text}</p>
-
-</div>
-
-)}
-
-
-{/* RESULT */}
-
-{result && (
-
-<div className="result-card">
-
-<h2 className={result==="SCAM"?"danger":"safe"}>
-
-{result==="SCAM"
-? "⚠ Scam Voice Detected"
-: "✅ Safe Voice"}
-
-</h2>
-
-<p><b>Prediction:</b> {prediction}</p>
-<p><b>Probability:</b> {probability}%</p>
-<p><b>Type:</b> {type}</p>
-
-<div className="risk-bar">
-
-<div
-className="risk-fill"
-style={{width:`${probability}%`}}
-></div>
-
-</div>
-
-</div>
-
-)}
-
-</div>
-
-</div>
-
-)
-
-}
-
-export default VoiceDetection
-
-
-
-
+export default VoiceDetection;

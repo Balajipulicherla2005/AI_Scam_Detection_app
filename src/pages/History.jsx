@@ -1,442 +1,732 @@
-// function History(){
+import { auth } from "../firebase";
 
-// return(
+import {
+  useEffect,
+  useState
+} from "react";
 
-// <div>
+import {
+  FaTrashAlt
+} from "react-icons/fa";
 
-// <h2>Scam Detection History</h2>
+function History() {
 
-// <table>
+  // =========================
+  // STATES
+  // =========================
 
-// <tr>
-// <th>Message</th>
-// <th>Result</th>
-// </tr>
+  const [history, setHistory] =
+    useState([]);
 
-// <tr>
-// <td>Win 10,000 now</td>
-// <td>Scam</td>
-// </tr>
 
-// </table>
 
-// </div>
 
-// )
+  // =========================
+  // LOAD USER HISTORY
+  // =========================
 
-// }
+  useEffect(() => {
 
-// export default History
+    const userEmail =
+      auth.currentUser?.email;
 
+    const historyKey =
+      `scamHistory_${userEmail}`;
 
+    const data =
+      JSON.parse(
+        localStorage.getItem(historyKey)
+      ) || [];
 
+    setHistory(data);
 
+  }, []);
 
 
 
 
+  // =========================
+  // CLEAR HISTORY
+  // =========================
 
+  const clearHistory = () => {
 
+    const userEmail =
+      auth.currentUser?.email;
 
-// function History(){
+    const historyKey =
+      `scamHistory_${userEmail}`;
 
-// return(
+    localStorage.removeItem(
+      historyKey
+    );
 
-// <div style={{padding:"30px",color:"white"}}>
+    setHistory([]);
 
-// <h2>Scam History</h2>
+  };
 
-// <table border="1">
 
-// <tr>
-// <th>Message</th>
-// <th>Result</th>
-// </tr>
 
-// <tr>
-// <td>Win 10,000 now</td>
-// <td>Scam</td>
-// </tr>
 
-// </table>
+  // =========================
+  // UI
+  // =========================
 
-// </div>
+  return (
 
-// )
+    <div className="page-container">
 
-// }
+      {/* ===== HEADER ===== */}
 
-// export default History
+      <div
+        style={{
 
+          display: "flex",
 
+          justifyContent:
+            "space-between",
 
+          alignItems: "center",
 
+          flexWrap: "wrap",
 
+          gap: "20px",
 
+          marginBottom: "25px"
 
+        }}
+      >
 
+        <div>
 
+          <h1 className="page-title">
+            📚 Detection History
+          </h1>
 
+          <p className="page-subtitle">
 
+            View your previous scam detections,
+            AI analysis reports, phishing scans,
+            suspicious URL checks,
+            and assistant responses.
 
+          </p>
 
-// import { useEffect, useState } from "react"
+        </div>
 
-// function History(){
 
-// const [history,setHistory] = useState([])
 
-// useEffect(()=>{
 
-// const stored = JSON.parse(localStorage.getItem("scanHistory")) || []
-// setHistory(stored)
+        {/* CLEAR BUTTON */}
 
-// },[])
+        {history.length > 0 && (
 
-// return(
+          <button
 
-// <div style={{padding:"30px"}}>
+            onClick={clearHistory}
 
-// <h2>Detection History</h2>
+            style={{
 
-// <table border="1">
-// <thead>
-// <tr>
-// <th>Message</th>
-// <th>Prediction</th>
-// <th>Probability</th>
-// </tr>
-// </thead>
+              background:
+                "linear-gradient(135deg,#ef4444,#dc2626)",
 
-// <tbody>
+              border: "none",
 
-// {history.map((item,index)=>(
-// <tr key={index}>
-// <td>{item.message}</td>
-// <td>{item.prediction}</td>
-// <td>{item.probability}%</td>
-// </tr>
-// ))}
+              color: "#fff",
 
-// </tbody>
-// </table>
+              padding:
+                "15px 28px",
 
-// </div>
+              borderRadius: "18px",
 
-// )
+              fontWeight: "700",
 
-// }
+              fontSize: "16px",
 
-// export default History
+              cursor: "pointer",
 
+              display: "flex",
 
+              alignItems: "center",
 
+              gap: "10px",
 
+              boxShadow:
+                "0 10px 30px rgba(239,68,68,0.35)"
 
+            }}
 
+          >
 
+            <FaTrashAlt />
 
+            Clear History
 
+          </button>
 
-// import { useEffect, useState } from "react"
+        )}
 
-// function History(){
+      </div>
 
-// const [history,setHistory] = useState([])
 
-// useEffect(()=>{
 
-// const stored = JSON.parse(localStorage.getItem("scanHistory")) || []
-// setHistory(stored)
 
-// },[])
+      {/* ===== EMPTY ===== */}
 
-// return(
+      {history.length === 0 && (
 
-// <div className="history-page">
+        <div
+          style={{
 
-// <h1>📊 Detection History</h1>
+            background:
+              "linear-gradient(145deg,#0f1f3d,#09152d)",
 
-// <div className="history-card">
+            padding: "35px",
 
-// <table>
+            borderRadius: "25px",
 
-// <thead>
+            border:
+              "1px solid rgba(255,255,255,0.06)",
 
-// <tr>
-// <th>Message</th>
-// <th>Prediction</th>
-// <th>Probability</th>
-// </tr>
+            color: "#9bb3d1",
 
-// </thead>
+            fontSize: "18px",
 
-// <tbody>
+            boxShadow:
+              "0 15px 40px rgba(0,0,0,0.35)"
 
-// {history.length === 0 ? (
+          }}
+        >
 
-// <tr>
-// <td colSpan="3" style={{textAlign:"center"}}>
-// No scans yet
-// </td>
-// </tr>
+          No history available
 
-// ) : (
+        </div>
 
-// history.map((item,index)=>(
+      )}
 
-// <tr key={index}>
 
-// <td>{item.message}</td>
 
-// <td
-// style={{
-// color: item.prediction === "SCAM" ? "#ff4d4d" : "#22c55e",
-// fontWeight:"bold"
-// }}
-// >
 
-// {item.prediction === "SCAM"
-// ? "🚨 SCAM"
-// : "✅ SAFE"}
 
-// </td>
+      {/* ===== HISTORY LIST ===== */}
 
-// <td>{item.probability}%</td>
+      {history.map((item, index) => (
 
-// </tr>
+        <div
 
-// ))
+          key={index}
 
-// )}
+          style={{
 
-// </tbody>
+            background:
+              "linear-gradient(145deg,#102348,#09152d)",
 
-// </table>
+            border:
+              "1px solid rgba(255,255,255,0.06)",
 
-// </div>
+            padding: "35px",
 
-// </div>
+            marginTop: "30px",
 
-// )
+            borderRadius: "30px",
 
-// }
+            boxShadow:
+              "0 20px 50px rgba(0,0,0,0.45)",
 
-// export default History
+            overflow: "hidden",
 
+            position: "relative"
 
+          }}
 
+        >
 
 
 
+          {/* ===== TOP BLUE LINE ===== */}
 
+          <div
+            style={{
 
+              position: "absolute",
 
+              top: 0,
 
+              left: 0,
 
+              width: "100%",
 
+              height: "4px",
 
+              background:
+                item.prediction === "SCAM"
+                  ? "linear-gradient(90deg,#ef4444,#f97316)"
+                  : "linear-gradient(90deg,#22c55e,#4ade80)"
 
+            }}
+          />
 
-// import { useEffect, useState } from "react"
 
-// function History(){
 
-// const [history,setHistory] = useState([])
 
-// useEffect(()=>{
 
-// const stored = JSON.parse(localStorage.getItem("scanHistory")) || []
+          {/* ===== MODULE HEADER ===== */}
 
-// setHistory(stored)
+          <div
+            style={{
 
-// },[])
+              display: "flex",
 
-// return(
+              justifyContent:
+                "space-between",
 
-// <div className="history-page">
+              alignItems: "center",
 
-// <h1>📊 Detection History</h1>
+              flexWrap: "wrap",
 
-// <div className="history-grid">
+              gap: "15px",
 
-// {history.map((item,index)=>(
+              marginBottom: "30px"
 
-// <div className="history-card" key={index}>
+            }}
+          >
 
-// <p className="history-message">
-// {item.message}
-// </p>
+            {/* LEFT */}
 
-// <p
-// className={
-// item.prediction === "SCAM"
-// ? "prediction-scam"
-// : "prediction-safe"
-// }
-// >
+            <div
+              style={{
 
-// {item.prediction === "SCAM"
-// ? "🚨 SCAM"
-// : "✅ SAFE"}
+                display: "flex",
 
-// </p>
+                alignItems: "center",
 
-// <p className="probability">
-// Risk Score: {item.probability}%
-// </p>
+                gap: "16px"
 
-// </div>
+              }}
+            >
 
-// ))}
+              {/* ICON */}
 
-// </div>
+              <div
+                style={{
 
-// </div>
+                  width: "65px",
 
-// )
+                  height: "65px",
 
-// }
+                  borderRadius: "20px",
 
-// export default History
+                  background:
+                    "linear-gradient(135deg,#2563eb,#3b82f6)",
 
+                  display: "flex",
 
+                  alignItems: "center",
 
+                  justifyContent: "center",
 
+                  fontSize: "28px",
 
+                  boxShadow:
+                    "0 10px 30px rgba(37,99,235,0.4)"
 
+                }}
+              >
 
+                🛡️
 
+              </div>
 
 
-// import { useEffect, useState } from "react"
 
-// function History(){
 
-// const [history,setHistory] = useState([])
+              {/* TEXT */}
 
-// useEffect(()=>{
+              <div>
 
-// const data = JSON.parse(localStorage.getItem("scamHistory")) || []
+                <p
+                  style={{
 
-// setHistory(data)
+                    color: "#60a5fa",
 
-// },[])
+                    fontSize: "14px",
 
-// return(
+                    marginBottom: "6px",
 
-// <div style={{padding:"40px"}}>
+                    fontWeight: "700",
 
-// <h2>📊 Detection History</h2>
+                    letterSpacing: "0.5px"
 
-// {history.length === 0 && <p>No history found</p>}
+                  }}
+                >
 
-// {history.map((item,index)=>(
-// <div key={index} style={{
-// border:"1px solid #1f2937",
-// padding:"15px",
-// marginTop:"15px",
-// borderRadius:"10px"
-// }}>
+                  SECURITY MODULE
 
-// <p><b>Text:</b> {item.text}</p>
+                </p>
 
-// <p><b>Prediction:</b> {item.prediction}</p>
+                <h2
+                  style={{
 
-// <p><b>Probability:</b> {item.probability}%</p>
+                    color: "#ffffff",
 
-// <p><b>Type:</b> {item.type}</p>
+                    fontSize: "30px",
 
-// <p><b>Time:</b> {item.time}</p>
+                    fontWeight: "800",
 
-// </div>
-// ))}
+                    margin: 0
 
-// </div>
+                  }}
+                >
 
-// )
+                  {item.module}
 
-// }
+                </h2>
 
-// <span style={{color:item.prediction==="SCAM"?"red":"green"}}>
-// {item.prediction}
-// </span>
+              </div>
 
-// export default History
+            </div>
 
 
 
 
 
+            {/* STATUS */}
 
+            <div
+              style={{
 
+                padding:
+                  "12px 22px",
 
+                borderRadius: "999px",
 
+                background:
+                  item.prediction === "SCAM"
+                    ? "rgba(239,68,68,0.12)"
+                    : "rgba(34,197,94,0.12)",
 
+                color:
+                  item.prediction === "SCAM"
+                    ? "#ef4444"
+                    : "#22c55e",
 
+                border:
+                  item.prediction === "SCAM"
+                    ? "1px solid rgba(239,68,68,0.25)"
+                    : "1px solid rgba(34,197,94,0.25)",
 
+                fontWeight: "700",
 
+                fontSize: "15px"
 
+              }}
+            >
 
-import { useEffect, useState } from "react"
+              {item.prediction === "SCAM"
+                ? "⚠ Threat Detected"
+                : "✔ Safe Content"}
 
-function History(){
+            </div>
 
-const [history,setHistory] = useState([])
+          </div>
 
-useEffect(()=>{
 
-const data = JSON.parse(localStorage.getItem("scamHistory")) || []
 
-setHistory(data)
 
-},[])
 
-return(
+          {/* ===== TEXT ===== */}
 
-<div style={{padding:"40px"}}>
+          <div
+            style={{
 
-<h2>📊 Detection History</h2>
+              marginBottom: "30px"
 
-{history.length === 0 && <p>No history available</p>}
+            }}
+          >
 
-{history.map((item,index)=>(
+            <h3
+              style={{
 
-<div
-key={index}
-style={{
-border:"1px solid #1f2937",
-padding:"15px",
-marginTop:"15px",
-borderRadius:"10px"
-}}
->
+                color: "#60a5fa",
 
-<p><b>Module:</b> {item.module}</p>
+                marginBottom: "15px",
 
-<p><b>Text:</b> {item.text}</p>
+                fontSize: "20px"
 
-<p>
-<b>Prediction:</b>{" "}
-<span style={{color:item.prediction==="SCAM"?"red":"green"}}>
-{item.prediction}
-</span>
-</p>
+              }}
+            >
 
-<p><b>Probability:</b> {item.probability}%</p>
+              Text:
 
-<p><b>Type:</b> {item.type}</p>
+            </h3>
 
-<p><b>Time:</b> {item.time}</p>
+            <p
+              style={{
 
-</div>
+                color: "#ffffff",
 
-))}
+                lineHeight: "1.9",
 
-</div>
+                fontSize: "18px"
 
-)
+              }}
+            >
+
+              {item.text}
+
+            </p>
+
+          </div>
+
+
+
+
+
+          {/* ===== STATS GRID ===== */}
+
+          <div
+            style={{
+
+              display: "grid",
+
+              gridTemplateColumns:
+                "repeat(auto-fit,minmax(220px,1fr))",
+
+              gap: "20px",
+
+              marginBottom: "30px"
+
+            }}
+          >
+
+            {/* PREDICTION */}
+
+            <div
+              style={{
+
+                background:
+                  "rgba(255,255,255,0.03)",
+
+                padding: "22px",
+
+                borderRadius: "22px"
+
+              }}
+            >
+
+              <h4
+                style={{
+
+                  color: "#60a5fa",
+
+                  marginBottom: "12px",
+
+                  fontSize: "18px"
+
+                }}
+              >
+
+                Prediction
+
+              </h4>
+
+              <p
+                style={{
+
+                  color:
+                    item.prediction === "SCAM"
+                      ? "#ef4444"
+                      : "#22c55e",
+
+                  fontSize: "28px",
+
+                  fontWeight: "800",
+
+                  margin: 0
+
+                }}
+              >
+
+                {item.prediction}
+
+              </p>
+
+            </div>
+
+
+
+
+            {/* PROBABILITY */}
+
+            <div
+              style={{
+
+                background:
+                  "rgba(255,255,255,0.03)",
+
+                padding: "22px",
+
+                borderRadius: "22px"
+
+              }}
+            >
+
+              <h4
+                style={{
+
+                  color: "#60a5fa",
+
+                  marginBottom: "12px",
+
+                  fontSize: "18px"
+
+                }}
+              >
+
+                Probability
+
+              </h4>
+
+              <p
+                style={{
+
+                  color: "#ffffff",
+
+                  fontSize: "28px",
+
+                  fontWeight: "800",
+
+                  margin: 0
+
+                }}
+              >
+
+                {item.probability}%
+
+              </p>
+
+            </div>
+
+
+
+
+            {/* TIME */}
+
+            <div
+              style={{
+
+                background:
+                  "rgba(255,255,255,0.03)",
+
+                padding: "22px",
+
+                borderRadius: "22px"
+
+              }}
+            >
+
+              <h4
+                style={{
+
+                  color: "#60a5fa",
+
+                  marginBottom: "12px",
+
+                  fontSize: "18px"
+
+                }}
+              >
+
+                Time
+
+              </h4>
+
+              <p
+                style={{
+
+                  color: "#ffffff",
+
+                  fontSize: "18px",
+
+                  fontWeight: "600",
+
+                  margin: 0
+
+                }}
+              >
+
+                {item.time}
+
+              </p>
+
+            </div>
+
+          </div>
+
+
+
+
+
+          {/* ===== AI ANALYSIS ===== */}
+
+          <div
+            style={{
+
+              background:
+                "rgba(255,255,255,0.03)",
+
+              padding: "25px",
+
+              borderRadius: "22px",
+
+              border:
+                "1px solid rgba(255,255,255,0.04)"
+
+            }}
+          >
+
+            <h3
+              style={{
+
+                color: "#60a5fa",
+
+                marginBottom: "15px"
+
+              }}
+            >
+
+              AI Analysis:
+
+            </h3>
+
+            <p
+              style={{
+
+                color: "#dbeafe",
+
+                lineHeight: "1.9",
+
+                fontSize: "17px",
+
+                margin: 0
+
+              }}
+            >
+
+              {item.type}
+
+            </p>
+
+          </div>
+
+        </div>
+
+      ))}
+
+    </div>
+
+  );
 
 }
 
-export default History
+export default History;

@@ -1,1938 +1,378 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from './assets/vite.svg'
-// import heroImg from './assets/hero.png'
-// import './App.css'
-
-// function App() {
-//   const [count, setCount] = useState(0)
-
-//   return (
-//     <>
-//       <section id="center">
-//         <div className="hero">
-//           <img src={heroImg} className="base" width="170" height="179" alt="" />
-//           <img src={reactLogo} className="framework" alt="React logo" />
-//           <img src={viteLogo} className="vite" alt="Vite logo" />
-//         </div>
-//         <div>
-//           <h1>Get started</h1>
-//           <p>
-//             Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-//           </p>
-//         </div>
-//         <button
-//           className="counter"
-//           onClick={() => setCount((count) => count + 1)}
-//         >
-//           Count is {count}
-//         </button>
-//       </section>
-
-//       <div className="ticks"></div>
-
-//       <section id="next-steps">
-//         <div id="docs">
-//           <svg className="icon" role="presentation" aria-hidden="true">
-//             <use href="/icons.svg#documentation-icon"></use>
-//           </svg>
-//           <h2>Documentation</h2>
-//           <p>Your questions, answered</p>
-//           <ul>
-//             <li>
-//               <a href="https://vite.dev/" target="_blank">
-//                 <img className="logo" src={viteLogo} alt="" />
-//                 Explore Vite
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://react.dev/" target="_blank">
-//                 <img className="button-icon" src={reactLogo} alt="" />
-//                 Learn more
-//               </a>
-//             </li>
-//           </ul>
-//         </div>
-//         <div id="social">
-//           <svg className="icon" role="presentation" aria-hidden="true">
-//             <use href="/icons.svg#social-icon"></use>
-//           </svg>
-//           <h2>Connect with us</h2>
-//           <p>Join the Vite community</p>
-//           <ul>
-//             <li>
-//               <a href="https://github.com/vitejs/vite" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#github-icon"></use>
-//                 </svg>
-//                 GitHub
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://chat.vite.dev/" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#discord-icon"></use>
-//                 </svg>
-//                 Discord
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://x.com/vite_js" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#x-icon"></use>
-//                 </svg>
-//                 X.com
-//               </a>
-//             </li>
-//             <li>
-//               <a href="https://bsky.app/profile/vite.dev" target="_blank">
-//                 <svg
-//                   className="button-icon"
-//                   role="presentation"
-//                   aria-hidden="true"
-//                 >
-//                   <use href="/icons.svg#bluesky-icon"></use>
-//                 </svg>
-//                 Bluesky
-//               </a>
-//             </li>
-//           </ul>
-//         </div>
-//       </section>
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate
+} from "react-router-dom";
 
-//       <div className="ticks"></div>
-//       <section id="spacer"></section>
-//     </>
-//   )
-// }
+import {
+  useEffect,
+  useState
+} from "react";
 
-// export default App
+import {
+  onAuthStateChanged
+} from "firebase/auth";
 
+import {
+  auth
+} from "./firebase";
 
 
+// ================= NAVBAR =================
 
+import Navbar from "./components/Navbar";
 
 
+// ================= AUTH PAGES =================
 
+import Login from "./pages/Login";
 
+import Register from "./pages/Register";
 
 
+// ================= LANDING PAGE =================
 
+import Guide from "./pages/Guide";
 
 
+// ================= DASHBOARD PAGES =================
 
+import Dashboard from "./pages/Dashboard";
 
+import ScamDetector from "./pages/ScamDetector";
 
+import Chatbot from "./pages/Chatbot";
 
-// import { useState } from "react"
-// import axios from "axios"
+import URLScanner from "./pages/URLScanner";
 
-// function App(){
+import VoiceDetection from "./pages/VoiceDetection";
 
-// const [message,setMessage] = useState("")
-// const [result,setResult] = useState(null)
+import History from "./pages/History";
 
-// const checkScam = async ()=>{
+import Examples from "./pages/Examples";
 
-// const res = await axios.post("http://localhost:5000/api/check",{
-// message
-// })
 
-// setResult(res.data)
 
-// }
+// =====================================================
+// 🔒 PROTECTED ROUTE
+// =====================================================
 
-// return(
+function ProtectedRoute({
+  children
+}) {
 
-// <div style={{textAlign:"center",padding:"40px"}}>
+  const [user, setUser] =
+    useState(null);
 
-// <h1>🔐 AI Scam Detection System</h1>
-// <p>Detect phishing and scam messages instantly</p>
+  const [loading, setLoading] =
+    useState(true);
 
-// <textarea
-// placeholder="Paste suspicious message here..."
-// rows="6"
-// cols="60"
-// value={message}
-// onChange={(e)=>setMessage(e.target.value)}
-// />
 
-// <br/><br/>
 
-// <button onClick={checkScam}>
-// Detect Scam
-// </button>
+  useEffect(() => {
 
-// <br/><br/>
+    const unsubscribe =
+      onAuthStateChanged(
 
-// {result && (
+        auth,
 
-// <div style={{
-// border:"1px solid gray",
-// padding:"20px",
-// width:"300px",
-// margin:"auto"
-// }}>
+        (currentUser) => {
 
-// <h2>{result.result}</h2>
+          setUser(currentUser);
 
-// <h3>Risk Score : {result.risk_score}%</h3>
+          setLoading(false);
 
-// </div>
+        }
 
-// )}
+      );
 
-// </div>
+    return () =>
+      unsubscribe();
 
-// )
+  }, []);
 
-// }
 
-// export default App
 
+  // ================= LOADING =================
 
+  if (loading) {
 
+    return (
 
+      <div
+        style={{
 
+          minHeight: "100vh",
 
+          display: "flex",
 
+          justifyContent: "center",
 
+          alignItems: "center",
 
+          background: "#07142b",
 
+          color: "white",
 
+          fontSize: "24px",
 
+          fontWeight: "600"
 
-// import {useState} from "react"
-// import axios from "axios"
-// import {Bar} from "react-chartjs-2"
-// import "chart.js/auto"
+        }}
+      >
 
-// function App(){
-
-// const [message,setMessage] = useState("")
-// const [result,setResult] = useState(null)
-
-// const detectScam = async()=>{
-
-// const res = await axios.post("http://localhost:5000/api/check",{
-// message
-// })
-
-// setResult(res.data)
-// }
-
-// const data = {
-// labels:["Scam","Safe"],
-// datasets:[
-// {
-// label:"Messages",
-// data:[12,8]
-// }
-// ]
-// }
-
-// return(
-
-// <div className="container">
-
-// <h1>🔐 AI Scam Detection System</h1>
-// <p>Cyber Security AI Protection</p>
-
-// <textarea
-// rows="5"
-// placeholder="Paste suspicious message..."
-// value={message}
-// onChange={(e)=>setMessage(e.target.value)}
-// />
-
-// <br/><br/>
-
-// <button onClick={detectScam}>
-// Detect Scam
-// </button>
-
-// {result && (
-
-// <div className="result">
-
-// <h2>{result.result}</h2>
-
-// <h3>Risk Score : {result.risk_score}%</h3>
-
-// {result.risk_score > 70 &&
-// <p>⚠ Phishing Link Detected</p>}
-
-// <div style={{marginTop:"20px"}}>
-
-// <div style={{
-// background:"#334155",
-// height:"20px",
-// borderRadius:"10px"
-// }}>
-
-// <div style={{
-// width:`${result.risk_score}%`,
-// background:"red",
-// height:"20px",
-// borderRadius:"10px"
-// }}></div>
-
-// </div>
-
-// </div>
-
-// </div>
-
-// )}
-
-// <h2 style={{marginTop:"40px"}}>Dashboard Analytics</h2>
-
-// <Bar data={data}/>
-// </div>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-
-// import { useState } from "react"
-// import axios from "axios"
-// import { Bar } from "react-chartjs-2"
-// import "chart.js/auto"
-
-// function App(){
-
-// const [message,setMessage] = useState("")
-// const [result,setResult] = useState(null)
-
-// const detectScam = async()=>{
-
-// const res = await axios.post("http://localhost:5000/api/check",{
-// message
-// })
-
-// setResult(res.data)
-// }
-
-// const data = {
-// labels:["Scam","Safe"],
-// datasets:[
-// {
-// label:"Messages",
-// data:[12,8],
-// backgroundColor:["red","green"]
-// }
-// ]
-// }
-
-// return(
-
-// <div className="container">
-
-// <h1>🔐 AI Scam Detection System</h1>
-// <p>Cyber Security AI Protection</p>
-
-// <textarea
-// rows="5"
-// placeholder="Paste suspicious message..."
-// value={message}
-// onChange={(e)=>setMessage(e.target.value)}
-// />
-
-// <br/><br/>
-
-// <button onClick={detectScam}>
-// Detect Scam
-// </button>
-
-// {result && (
-
-// <div className="result">
-
-// <h2>{result.result}</h2>
-
-// <h3>Risk Score : {result.risk_score}%</h3>
-
-// {/* phishing link detection */}
-// {/* {result.phishing_link && (
-// <p style={{color:"red"}}>⚠ Phishing Link Detected</p>
-// )} */}
-
-
-// {result && (
-
-// <div className="result">
-
-// <h2>{result.result}</h2>
-
-// <h3>Risk Score : {result.risk_score}%</h3>
-
-// <h3>AI Confidence : {result.ai_confidence}</h3>
-
-// {result.phishing_link && (
-// <p style={{color:"red"}}>⚠ Phishing Link Detected</p>
-// )}
-
-// </div>
-
-// )}
-
-// {/* risk progress bar */}
-
-// <div style={{marginTop:"20px"}}>
-
-// <div style={{
-// background:"#334155",
-// height:"20px",
-// borderRadius:"10px"
-// }}>
-
-// <div style={{
-// width:`${result.risk_score}%`,
-// background:"red",
-// height:"20px",
-// borderRadius:"10px"
-// }}></div>
-
-// </div>
-
-// </div>
-
-// </div>
-
-// )}
-
-// <h2 style={{marginTop:"40px"}}>Dashboard Analytics</h2>
-
-// <Bar data={data}/>
-
-// </div>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { useState } from "react"
-// import axios from "axios"
-// import { Bar } from "react-chartjs-2"
-// import "chart.js/auto"
-
-// function App(){
-
-// const [message,setMessage] = useState("")
-// const [result,setResult] = useState(null)
-
-// const detectScam = async()=>{
-
-// try{
-
-// const res = await axios.post("http://localhost:5000/api/check",{
-// message
-// })
-
-// setResult(res.data)
-
-// if(res.data.risk_score > 70){
-// alert("⚠ Scam Message Detected!")
-// }
-
-// }catch(error){
-// console.log(error)
-// }
-
-// }
-
-// const data = {
-// labels:["Scam","Safe"],
-// datasets:[
-// {
-// label:"Detection Analytics",
-// data:[12,8],
-// backgroundColor:["red","green"]
-// }
-// ]
-// }
-
-// return(
-
-// <div className="container">
-
-// <h1>🔐 AI Scam Detection System</h1>
-// <p>AI Powered Cybersecurity Protection</p>
-
-// <textarea
-// rows="5"
-// placeholder="Paste suspicious message here..."
-// value={message}
-// onChange={(e)=>setMessage(e.target.value)}
-// />
-
-// <br/><br/>
-
-// <button onClick={detectScam}>
-// Detect Scam
-// </button>
-
-// {/* RESULT SECTION */}
-
-// {result && (
-
-// <div className="result">
-
-// <h2>{result.result}</h2>
-
-// <h3>Risk Score : {result.risk_score}%</h3>
-
-// <h3>AI Confidence : {result.ai_confidence}</h3>
-
-// {/* PHISHING LINK DETECTION */}
-
-// {result.phishing_link && (
-// <p style={{color:"red"}}>⚠ Phishing Link Detected</p>
-// )}
-
-// {/* RISK METER */}
-
-// <div style={{marginTop:"20px"}}>
-
-// <div style={{
-// background:"#334155",
-// height:"20px",
-// borderRadius:"10px"
-// }}>
-
-// <div style={{
-// width:`${result.risk_score}%`,
-// background:"red",
-// height:"20px",
-// borderRadius:"10px"
-// }}></div>
-
-// </div>
-
-// </div>
-
-// </div>
-
-// )}
-
-// <h2 style={{marginTop:"40px"}}>Dashboard Analytics</h2>
-
-// <Bar data={data}/>
-
-// </div>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { useState } from "react"
-// import axios from "axios"
-// import { Bar } from "react-chartjs-2"
-// import "chart.js/auto"
-// import GaugeChart from "react-gauge-chart"
-
-// function App(){
-
-// const [message,setMessage] = useState("")
-// const [result,setResult] = useState(null)
-
-// const [total,setTotal] = useState(0)
-// const [scam,setScam] = useState(0)
-// const [safe,setSafe] = useState(0)
-
-// const detectScam = async()=>{
-
-// try{
-
-// const res = await axios.post("http://localhost:5000/api/check",{
-// message
-// })
-
-// setResult(res.data)
-
-// setTotal(prev => prev + 1)
-
-// if(res.data.risk_score > 50){
-// setScam(prev => prev + 1)
-// alert("⚠ Scam Message Detected!")
-// }else{
-// setSafe(prev => prev + 1)
-// }
-
-// }catch(error){
-// console.log(error)
-// }
-
-// }
-
-// const data = {
-// labels:["Scam","Safe"],
-// datasets:[
-// {
-// label:"Detection Analytics",
-// data:[scam,safe],
-// backgroundColor:["#ff3b3b","#00ff9c"]
-// }
-// ]
-// }
-
-// return(
-
-// <div className="container">
-
-// <h1 className="title">🔐 AI Scam Detection System</h1>
-// <p className="subtitle">AI Powered Cybersecurity Protection</p>
-
-// {/* MESSAGE SCANNER */}
-
-// <div className="scanner">
-
-// <textarea
-// rows="5"
-// placeholder="Paste suspicious message here..."
-// value={message}
-// onChange={(e)=>setMessage(e.target.value)}
-// />
-
-// <br/><br/>
-
-// <button onClick={detectScam}>
-// Detect Scam
-// </button>
-
-// </div>
-
-
-// {/* RESULT PANEL */}
-
-// {result && (
-
-// <div className="result-card">
-
-// <h2>{result.result}</h2>
-
-// <h3>Risk Score : {result.risk_score}%</h3>
-
-// <h3>AI Confidence : {result.ai_confidence}</h3>
-
-// {/* PHISHING DETECTION */}
-
-// {result.phishing_link && (
-// <p className="phishing">⚠ Phishing Link Detected</p>
-// )}
-
-// {/* RISK GAUGE */}
-
-// <GaugeChart
-// id="risk-gauge"
-// nrOfLevels={20}
-// percent={result.risk_score/100}
-// colors={["#00ff9c","#ff0000"]}
-// />
-
-// </div>
-
-// )}
-
-
-// {/* LIVE DETECTION COUNTERS */}
-
-// <div className="counter-panel">
-
-// <div className="counter">
-// <h2>{total}</h2>
-// <p>Total Scans</p>
-// </div>
-
-// <div className="counter">
-// <h2>{scam}</h2>
-// <p>Scam Detected</p>
-// </div>
-
-// <div className="counter">
-// <h2>{safe}</h2>
-// <p>Safe Messages</p>
-// </div>
-
-// </div>
-
-
-// {/* ANALYTICS PANEL */}
-
-// <div className="chart-panel">
-
-// <h2>Scam vs Safe Analytics</h2>
-
-// <Bar data={data}/>
-
-// </div>
-
-// </div>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-
-// import { useState } from "react"
-// import axios from "axios"
-// import { Bar } from "react-chartjs-2"
-// import "chart.js/auto"
-
-// import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
-// import "react-circular-progressbar/dist/styles.css"
-
-// function App(){
-
-// const [message,setMessage] = useState("")
-// const [result,setResult] = useState(null)
-
-// const [total,setTotal] = useState(0)
-// const [scam,setScam] = useState(0)
-// const [safe,setSafe] = useState(0)
-
-// const detectScam = async()=>{
-
-// const res = await axios.post("http://localhost:5000/api/check",{message})
-
-// setResult(res.data)
-
-// setTotal(prev=>prev+1)
-
-// if(res.data.risk_score > 50){
-// setScam(prev=>prev+1)
-// alert("⚠ Scam Detected")
-// }else{
-// setSafe(prev=>prev+1)
-// }
-
-// }
-
-// const data = {
-// labels:["Scam","Safe"],
-// datasets:[
-// {
-// label:"Detection Analytics",
-// data:[scam,safe],
-// backgroundColor:["#ff3b3b","#00ff9c"]
-// }
-// ]
-// }
-
-// return(
-
-// <div className="container">
-
-// <h1 className="title">🔐 AI Scam Detection System</h1>
-// <p className="subtitle">AI Powered Cybersecurity Protection</p>
-
-// {/* MESSAGE SCANNER */}
-
-// <div className="scanner">
-
-// <textarea
-// rows="5"
-// placeholder="Paste suspicious message here..."
-// value={message}
-// onChange={(e)=>setMessage(e.target.value)}
-// />
-
-// <button onClick={detectScam}>Detect Scam</button>
-
-// </div>
-
-
-// {/* RESULT PANEL */}
-
-// {result && (
-
-// <div className="result-panel">
-
-// <h2>{result.result}</h2>
-
-// <p>Risk Score: {result.risk_score}%</p>
-// <p>AI Confidence: {result.ai_confidence}</p>
-
-// {result.phishing_link && (
-// <p className="phishing">⚠ Phishing Link Detected</p>
-// )}
-
-// <div className="gauge">
-
-// <CircularProgressbar
-// value={result.risk_score}
-// text={`${result.risk_score}%`}
-// styles={buildStyles({
-// textColor:"#fff",
-// pathColor:"#ff3b3b",
-// trailColor:"#1e293b"
-// })}
-// />
-
-// </div>
-
-// </div>
-
-// )}
-
-// {/* LIVE COUNTERS */}
-
-// <div className="counter-grid">
-
-// <div className="counter-card">
-// <h2>{total}</h2>
-// <p>Total Scans</p>
-// </div>
-
-// <div className="counter-card">
-// <h2>{scam}</h2>
-// <p>Scam Detected</p>
-// </div>
-
-// <div className="counter-card">
-// <h2>{safe}</h2>
-// <p>Safe Messages</p>
-// </div>
-
-// </div>
-
-
-// {/* ANALYTICS */}
-
-// <div className="analytics">
-
-// <h2>Scam vs Safe Analytics</h2>
-
-// <Bar data={data}/>
-
-// </div>
-
-// </div>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-// import { useState } from "react"
-// import axios from "axios"
-// import { Bar } from "react-chartjs-2"
-// import "chart.js/auto"
-
-// import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
-// import "react-circular-progressbar/dist/styles.css"
-
-// function App(){
-
-// const [message,setMessage] = useState("")
-// const [result,setResult] = useState(null)
-
-// const [total,setTotal] = useState(0)
-// const [scam,setScam] = useState(0)
-// const [safe,setSafe] = useState(0)
-
-// const detectScam = async()=>{
-
-// if(message.trim()===""){
-// alert("Please enter a message")
-// return
-// }
-
-// try{
-
-// const res = await axios.post("http://localhost:5000/api/check",{message})
-
-// setResult(res.data)
-
-// setTotal(prev=>prev+1)
-
-// if(res.data.risk_score > 50){
-// setScam(prev=>prev+1)
-// alert("⚠ Scam Detected")
-// }else{
-// setSafe(prev=>prev+1)
-// }
-
-// }catch(err){
-// console.log(err)
-// alert("Server Error")
-// }
-
-// }
-
-// const data = {
-// labels:["Scam","Safe"],
-// datasets:[
-// {
-// label:"Detection Analytics",
-// data:[scam,safe],
-// backgroundColor:["#ff3b3b","#00ff9c"]
-// }
-// ]
-// }
-
-// return(
-
-// <div className="container">
-
-// <h1 className="title">🔐 AI Scam Detection System</h1>
-// <p className="subtitle">AI Powered Cybersecurity Protection</p>
-
-// {/* MESSAGE SCANNER */}
-
-// <div className="scanner">
-
-// <textarea
-// rows="5"
-// placeholder="Paste suspicious message here..."
-// value={message}
-// onChange={(e)=>setMessage(e.target.value)}
-// />
-
-// <button onClick={detectScam}>
-// Detect Scam
-// </button>
-
-// </div>
-
-
-// {/* RESULT PANEL */}
-
-// {result && (
-
-// <div className="result-panel">
-
-// <h2>{result.result}</h2>
-
-// <p>Risk Score: {result.risk_score}%</p>
-// <p>AI Confidence: {result.ai_confidence}</p>
-
-// {result.phishing_link && (
-// <p className="phishing">⚠ Phishing Link Detected</p>
-// )}
-
-// <div className="gauge">
-
-// <CircularProgressbar
-// value={result.risk_score}
-// text={`${result.risk_score}%`}
-// styles={buildStyles({
-// textColor:"#fff",
-// pathColor:"#ff3b3b",
-// trailColor:"#1e293b"
-// })}
-// />
-
-// </div>
-
-// </div>
-
-// )}
-
-
-// {/* LIVE COUNTERS */}
-
-// <div className="counter-grid">
-
-// <div className="counter-card">
-// <h2>{total}</h2>
-// <p>Total Scans</p>
-// </div>
-
-// <div className="counter-card">
-// <h2>{scam}</h2>
-// <p>Scam Detected</p>
-// </div>
-
-// <div className="counter-card">
-// <h2>{safe}</h2>
-// <p>Safe Messages</p>
-// </div>
-
-// </div>
-
-
-// {/* ANALYTICS */}
-
-// <div className="analytics">
-
-// <h2>Scam vs Safe Analytics</h2>
-
-// <Bar data={data}/>
-
-// </div>
-
-// </div>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-// import { useState } from "react"
-// import axios from "axios"
-// import { Bar } from "react-chartjs-2"
-// import "chart.js/auto"
-
-// import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
-// import "react-circular-progressbar/dist/styles.css"
-
-// function App(){
-
-// const [message,setMessage] = useState("")
-// const [result,setResult] = useState(null)
-
-// const [total,setTotal] = useState(0)
-// const [scam,setScam] = useState(0)
-// const [safe,setSafe] = useState(0)
-
-// // Chatbot states
-// const [chat,setChat] = useState("")
-// const [reply,setReply] = useState("")
-
-// // ================= SCAM DETECTION =================
-
-// const detectScam = async()=>{
-
-// if(message.trim()===""){
-// alert("Please enter a message")
-// return
-// }
-
-// try{
-
-// const res = await axios.post("http://localhost:5000/api/check",{message})
-
-// setResult(res.data)
-
-// setTotal(prev=>prev+1)
-
-// if(res.data.risk_score > 50){
-// setScam(prev=>prev+1)
-// alert("⚠ Scam Detected")
-// }else{
-// setSafe(prev=>prev+1)
-// }
-
-// }catch(err){
-// console.log(err)
-// alert("Server Error")
-// }
-
-// }
-
-
-// // ================= AI CHATBOT =================
-
-// const askAI = async()=>{
-
-// if(chat.trim()===""){
-// alert("Ask something first")
-// return
-// }
-
-// try{
-
-// const res = await axios.post("http://localhost:5000/api/chatbot",{
-// message:chat
-// })
-
-// setReply(res.data.reply)
-
-// }catch(err){
-
-// console.log(err)
-// alert("AI Server Error")
-
-// }
-
-// }
-
-
-// // ================= ANALYTICS DATA =================
-
-// const data = {
-// labels:["Scam","Safe"],
-// datasets:[
-// {
-// label:"Detection Analytics",
-// data:[scam,safe],
-// backgroundColor:["#ff3b3b","#00ff9c"]
-// }
-// ]
-// }
-
-
-// // ================= UI =================
-
-// return(
-
-// <div className="container">
-
-// <h1 className="title">🔐 AI Scam Detection System</h1>
-// <p className="subtitle">AI Powered Cybersecurity Protection</p>
-
-
-// {/* MESSAGE SCANNER */}
-
-// <div className="scanner">
-
-// <textarea
-// rows="5"
-// placeholder="Paste suspicious message here..."
-// value={message}
-// onChange={(e)=>setMessage(e.target.value)}
-// />
-
-// <button onClick={detectScam}>
-// Detect Scam
-// </button>
-
-// </div>
-
-
-// {/* RESULT PANEL */}
-
-// {result && (
-
-// <div className="result-panel">
-
-// <h2>{result.result}</h2>
-
-// <p>Risk Score: {result.risk_score}%</p>
-// <p>AI Confidence: {result.ai_confidence}</p>
-
-// {result.phishing_link && (
-// <p className="phishing">⚠ Phishing Link Detected</p>
-// )}
-
-// <div className="gauge">
-
-// <CircularProgressbar
-// value={result.risk_score}
-// text={`${result.risk_score}%`}
-// styles={buildStyles({
-// textColor:"#fff",
-// pathColor:"#ff3b3b",
-// trailColor:"#1e293b"
-// })}
-// />
-
-// </div>
-
-// </div>
-
-// )}
-
-
-// {/* LIVE COUNTERS */}
-
-// <div className="counter-grid">
-
-// <div className="counter-card">
-// <h2>{total}</h2>
-// <p>Total Scans</p>
-// </div>
-
-// <div className="counter-card">
-// <h2>{scam}</h2>
-// <p>Scam Detected</p>
-// </div>
-
-// <div className="counter-card">
-// <h2>{safe}</h2>
-// <p>Safe Messages</p>
-// </div>
-
-// </div>
-
-
-// {/* ANALYTICS */}
-
-// <div className="analytics">
-
-// <h2>Scam vs Safe Analytics</h2>
-
-// <Bar data={data}/>
-
-// </div>
-
-
-// {/* AI CHATBOT */}
-
-// <div className="chatbot">
-
-// <h2>🤖 AI Scam Assistant</h2>
-
-// <textarea
-// rows="4"
-// placeholder="Ask AI: Is this message safe?"
-// value={chat}
-// onChange={(e)=>setChat(e.target.value)}
-// />
-
-// <button onClick={askAI}>
-// Ask AI
-// </button>
-
-// {reply && (
-
-// <div className="ai-reply">
-
-// <p>{reply}</p>
-
-// </div>
-
-// )}
-
-// </div>
-
-// </div>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-import { useState } from "react"
-// import axios from "axios"
-// import { Bar } from "react-chartjs-2"
-// import "chart.js/auto"
-
-// import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
-// import "react-circular-progressbar/dist/styles.css"
-
-// function App(){
-
-// const [message,setMessage] = useState("")
-// const [result,setResult] = useState(null)
-
-// const [total,setTotal] = useState(0)
-// const [scam,setScam] = useState(0)
-// const [safe,setSafe] = useState(0)
-
-// // Chatbot states
-// const [chat,setChat] = useState("")
-// const [reply,setReply] = useState("")
-
-
-// // ================= SCAM DETECTION =================
-
-// const detectScam = async()=>{
-
-// if(message.trim()===""){
-// alert("Please enter a message")
-// return
-// }
-
-// try{
-
-// const res = await axios.post("http://localhost:5000/api/check",{message})
-
-// setResult(res.data)
-
-// setTotal(prev=>prev+1)
-
-// if(res.data.risk_score > 50){
-// setScam(prev=>prev+1)
-// alert("⚠ Scam Detected")
-// }else{
-// setSafe(prev=>prev+1)
-// }
-
-// }catch(err){
-// console.log(err)
-// alert("Server Error")
-// }
-
-// }
-
-
-// // ================= AI CHATBOT =================
-
-// // const askAI = async()=>{
-
-// // if(chat.trim()===""){
-// // alert("Ask something first")
-// // return
-// // }
-
-// // try{
-
-// // const res = await axios.post(
-// // "http://localhost:5000/api/ask-ai",
-// // { message: chat }
-// // )
-
-// // setReply(res.data.reply)
-
-// // }catch(err){
-
-// // console.log(err)
-// // alert("AI Server Error")
-
-// // }
-
-// // }
-
-
-// const askAI = async()=>{
-
-// if(chat.trim()===""){
-// alert("Ask something first")
-// return
-// }
-
-// try{
-
-// const res = await axios.post(
-// "http://localhost:5000/api/ask-ai",
-// { message: chat }
-// )
-
-// setReply(res.data.reply)
-
-// }catch(err){
-
-// console.log(err)
-// alert("AI Server Error")
-
-// }
-
-// }
-
-
-// // ================= ANALYTICS DATA =================
-
-// const data = {
-// labels:["Scam","Safe"],
-// datasets:[
-// {
-// label:"Detection Analytics",
-// data:[scam,safe],
-// backgroundColor:["#ff3b3b","#00ff9c"]
-// }
-// ]
-// }
-
-
-// // ================= UI =================
-
-// return(
-
-// <div className="container">
-
-// <h1 className="title">🔐 AI Scam Detection System</h1>
-// <p className="subtitle">AI Powered Cybersecurity Protection</p>
-
-
-// {/* MESSAGE SCANNER */}
-
-// <div className="scanner">
-
-// <textarea
-// rows="5"
-// placeholder="Paste suspicious message here..."
-// value={message}
-// onChange={(e)=>setMessage(e.target.value)}
-// />
-
-// <button onClick={detectScam}>
-// Detect Scam
-// </button>
-
-// </div>
-
-
-// {/* RESULT PANEL */}
-
-// {result && (
-
-// <div className="result-panel">
-
-// <h2>{result.result}</h2>
-
-// <p>Risk Score: {result.risk_score}%</p>
-// <p>AI Confidence: {result.ai_confidence}</p>
-
-// {result.phishing_link && (
-// <p className="phishing">⚠ Phishing Link Detected</p>
-// )}
-
-// <div className="gauge">
-
-// <CircularProgressbar
-// value={result.risk_score}
-// text={`${result.risk_score}%`}
-// styles={buildStyles({
-// textColor:"#fff",
-// pathColor:"#ff3b3b",
-// trailColor:"#1e293b"
-// })}
-// />
-
-// </div>
-
-// </div>
-
-// )}
-
-
-// {/* LIVE COUNTERS */}
-
-// <div className="counter-grid">
-
-// <div className="counter-card">
-// <h2>{total}</h2>
-// <p>Total Scans</p>
-// </div>
-
-// <div className="counter-card">
-// <h2>{scam}</h2>
-// <p>Scam Detected</p>
-// </div>
-
-// <div className="counter-card">
-// <h2>{safe}</h2>
-// <p>Safe Messages</p>
-// </div>
-
-// </div>
-
-
-// {/* ANALYTICS */}
-
-// <div className="analytics">
-
-// <h2>Scam vs Safe Analytics</h2>
-
-// <Bar data={data}/>
-
-// </div>
-
-
-// {/* AI CHATBOT */}
-
-// <div className="chatbot">
-
-// <h2>🤖 AI Scam Assistant</h2>
-
-// <textarea
-// rows="4"
-// placeholder="Ask AI: Is this message safe?"
-// value={chat}
-// onChange={(e)=>setChat(e.target.value)}
-// />
-
-// <button onClick={askAI}>
-// Ask AI
-// </button>
-
-// {reply && (
-
-// <div className="ai-reply">
-
-// <p>{reply}</p>
-
-// </div>
-
-// )}
-
-// </div>
-
-// </div>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-// import {BrowserRouter,Routes,Route} from "react-router-dom"
-
-// import Navbar from "./components/Navbar"
-// import ScamDetector from "./pages/ScamDetector"
-// import URLScanner from "./pages/URLScanner"
-// import VoiceDetection from "./pages/VoiceDetection"
-// import Dashboard from "./pages/Dashboard"
-
-// function App(){
-
-// return(
-
-// <BrowserRouter>
-
-// <Navbar/>
-
-// <Routes>
-
-// <Route path="/" element={<ScamDetector/>}/>
-// <Route path="/url" element={<URLScanner/>}/>
-// <Route path="/voice" element={<VoiceDetection/>}/>
-// <Route path="/dashboard" element={<Dashboard/>}/>
-
-// </Routes>
-
-// </BrowserRouter>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { BrowserRouter, Routes, Route } from "react-router-dom"
-
-// import Sidebar from "./components/Sidebar"
-// import Navbar from "./components/Navbar"
-
-// import ScamDetector from "./pages/ScamDetector"
-// import URLScanner from "./pages/URLScanner"
-// import VoiceDetection from "./pages/VoiceDetection"
-// import Dashboard from "./pages/Dashboard"
-// import History from "./pages/History"
-
-// function App(){
-
-// return(
-
-// <BrowserRouter>
-
-// <div className="layout">
-
-// {/* Sidebar */}
-
-// <Sidebar/>
-
-// {/* Main Content */}
-
-// <div className="main">
-
-// <Navbar/>
-
-// <Routes>
-
-// <Route path="/" element={<Dashboard/>}/>
-
-// <Route path="/detector" element={<ScamDetector/>}/>
-
-// <Route path="/chatbot" element={<Chatbot/>}/>
-
-// <Route path="/url" element={<URLScanner/>}/>
-
-// <Route path="/voice" element={<VoiceDetection/>}/>
-
-// <Route path="/history" element={<History/>}/>
-
-// </Routes>
-
-// </div>
-
-// </div>
-
-// </BrowserRouter>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-// import { BrowserRouter, Routes, Route } from "react-router-dom"
-
-// import Navbar from "./components/Navbar"
-// import Sidebar from "./components/Sidebar"
-
-
-// import ScamDetector from "./pages/ScamDetector"
-// import URLScanner from "./pages/URLScanner"
-// import VoiceDetection from "./pages/VoiceDetection"
-// import Chatbot from "./pages/chatbot"
-// import Dashboard from "./pages/Dashboard"
-// import History from "./pages/History"
-
-// function App(){
-
-// return(
-
-// <BrowserRouter>
-
-// <Navbar/>
-
-// <div className="container">
-
-// <Routes>
-
-// <Route path="/" element={<Dashboard/>}/>
-// <Route path="/detector" element={<ScamDetector/>}/>
-// <Route path="/chatbot" element={<Chatbot/>}/>
-// <Route path="/url" element={<URLScanner/>}/>
-// <Route path="/voice" element={<VoiceDetection/>}/>
-// <Route path="/history" element={<History/>}/>
-
-// </Routes>
-
-// </div>
-
-// </BrowserRouter>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-// import { BrowserRouter, Routes, Route } from "react-router-dom"
-
-// import Footer from "./components/Footer"
-// import Navbar from "./components/Navbar"
-// import Sidebar from "./components/Sidebar"
-
-// import ScamDetector from "./pages/ScamDetector"
-// import URLScanner from "./pages/URLScanner"
-// import VoiceDetection from "./pages/VoiceDetection"
-// import Chatbot from "./pages/chatbot"
-// import Dashboard from "./pages/Dashboard"
-// import History from "./pages/History"
-
-// function App(){
-
-// return(
-
-// <BrowserRouter>
-
-// <Navbar/>
-
-
-// <div className="container">
-
-// <Routes>
-
-// <Route path="/" element={<Dashboard/>}/>
-// <Route path="/detector" element={<ScamDetector/>}/>
-// <Route path="/chatbot" element={<Chatbot/>}/>
-// <Route path="/url" element={<URLScanner/>}/>
-// <Route path="/voice" element={<VoiceDetection/>}/>
-// <Route path="/history" element={<History/>}/>
-
-// </Routes>
-
-// <Footer/>
-// </div>
-
-
-// </BrowserRouter>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { BrowserRouter, Routes, Route } from "react-router-dom"
-
-// import Navbar from "./components/Navbar"
-// import Footer from "./components/Footer"
-
-// import Dashboard from "./pages/Dashboard"
-// import ScamDetector from "./pages/ScamDetector"
-// import Chatbot from "./pages/Chatbot"
-// import URLScanner from "./pages/URLScanner"
-// import VoiceDetection from "./pages/VoiceDetection"
-// import History from "./pages/History"
-
-// function App(){
-
-// return(
-
-// <BrowserRouter>
-
-// <Navbar/>
-
-// <Routes>
-
-// <Route path="/" element={<Dashboard/>} />
-
-// <Route path="/detector" element={<ScamDetector/>} />
-
-// <Route path="/assistant" element={<Chatbot/>} />
-
-// <Route path="/url-scanner" element={<URLScanner/>} />
-
-// <Route path="/voice" element={<VoiceDetection/>} />
-
-// <Route path="/history" element={<History/>} />
-
-// </Routes>
-
-// <Footer/>
-
-// </BrowserRouter>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { BrowserRouter, Routes, Route } from "react-router-dom"
-
-// import Navbar from "./components/Navbar"
-// import Footer from "./components/Footer"
-
-
-// import Dashboard from "./pages/Dashboard"
-// import ScamDetector from "./pages/ScamDetector"
-// import Chatbot from "./pages/Chatbot"
-// import URLScanner from "./pages/URLScanner"
-// import VoiceDetection from "./pages/VoiceDetection"
-// import History from "./pages/History"
-
-// function App(){
-
-// return(
-
-// <BrowserRouter>
-
-// <Navbar/>
-
-// <div className="container">
-
-// <Routes>
-
-// <Route path="/" element={<Dashboard/>} />
-
-// <Route path="/detector" element={<ScamDetector/>} />
-
-// <Route path="/assistant" element={<Chatbot/>} />
-
-// <Route path="/url-scanner" element={<URLScanner/>} />
-
-// <Route path="/voice" element={<VoiceDetection/>} />
-
-// <Route path="/history" element={<History/>} />
-
-// </Routes>
-
-// </div>
-
-// <Footer/>
-
-// </BrowserRouter>
-
-// )
-
-// }
-
-// export default App
-
-
-
-
-
-
-
-
-
-
-
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-
-import Navbar from "./components/Navbar"
-import Footer from "./components/Footer"
-
-import Dashboard from "./pages/Dashboard"
-import ScamDetector from "./pages/ScamDetector"
-import Chatbot from "./pages/Chatbot"
-import URLScanner from "./pages/URLScanner"
-import VoiceDetection from "./pages/VoiceDetection"
-import History from "./pages/History"
-
-function App() {
-  return (
-    <BrowserRouter>
-
-      <Navbar />
-
-      {/* MAIN CONTENT */}
-      <div className="container">
-
-        <Routes>
-
-          {/* Default page */}
-          <Route path="/" element={<Dashboard />} />
-
-          {/* Other pages */}
-          <Route path="/detector" element={<ScamDetector />} />
-          <Route path="/assistant" element={<Chatbot />} />
-          <Route path="/url-scanner" element={<URLScanner />} />
-          <Route path="/voice" element={<VoiceDetection />} />
-          <Route path="/history" element={<History />} />
-
-          {/* Fallback route to prevent blank screen */}
-          <Route path="*" element={<Dashboard />} />
-
-        </Routes>
+        Loading...
 
       </div>
 
-      <Footer />
+    );
 
-    </BrowserRouter>
-  )
+  }
+
+
+
+  // ================= AUTH CHECK =================
+
+  return user
+
+    ? children
+
+    : <Navigate to="/login" />;
+
 }
 
-export default App
 
 
+// =====================================================
+// 🔥 APP CONTENT
+// =====================================================
+
+function AppContent() {
+
+  const location =
+    useLocation();
+
+
+
+  // ================= SHOW NAVBAR =================
+
+  const showDashboardNavbar =
+
+    location.pathname === "/dashboard" ||
+
+    location.pathname === "/detector" ||
+
+    location.pathname === "/assistant" ||
+
+    location.pathname === "/url-scanner" ||
+
+    location.pathname === "/voice" ||
+
+    location.pathname === "/history" ||
+
+    location.pathname === "/examples";
+
+
+
+  return (
+
+    <>
+
+      {/* ================= NAVBAR ================= */}
+
+      {showDashboardNavbar &&
+        <Navbar />
+      }
+
+
+
+      {/* ================= ROUTES ================= */}
+
+      <Routes>
+
+        {/* ================= LANDING PAGE ================= */}
+
+        <Route
+          path="/"
+          element={<Guide />}
+        />
+
+
+
+        {/* ================= LOGIN ================= */}
+
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+
+
+        {/* ================= REGISTER ================= */}
+
+        <Route
+          path="/register"
+          element={<Register />}
+        />
+
+
+
+        {/* ================= DASHBOARD ================= */}
+
+        <Route
+          path="/dashboard"
+          element={
+
+            <ProtectedRoute>
+
+              <Dashboard />
+
+            </ProtectedRoute>
+
+          }
+        />
+
+
+
+        {/* ================= SCAM DETECTOR ================= */}
+
+        <Route
+          path="/detector"
+          element={
+
+            <ProtectedRoute>
+
+              <ScamDetector />
+
+            </ProtectedRoute>
+
+          }
+        />
+
+
+
+        {/* ================= AI ASSISTANT ================= */}
+
+        <Route
+          path="/assistant"
+          element={
+
+            <ProtectedRoute>
+
+              <Chatbot />
+
+            </ProtectedRoute>
+
+          }
+        />
+
+
+
+        {/* ================= URL SCANNER ================= */}
+
+        <Route
+          path="/url-scanner"
+          element={
+
+            <ProtectedRoute>
+
+              <URLScanner />
+
+            </ProtectedRoute>
+
+          }
+        />
+
+
+
+        {/* ================= VOICE DETECTION ================= */}
+
+        <Route
+          path="/voice"
+          element={
+
+            <ProtectedRoute>
+
+              <VoiceDetection />
+
+            </ProtectedRoute>
+
+          }
+        />
+
+
+
+        {/* ================= HISTORY ================= */}
+
+        <Route
+          path="/history"
+          element={
+
+            <ProtectedRoute>
+
+              <History />
+
+            </ProtectedRoute>
+
+          }
+        />
+
+
+
+        {/* ================= EXAMPLES ================= */}
+
+        <Route
+          path="/examples"
+          element={
+
+            <ProtectedRoute>
+
+              <Examples />
+
+            </ProtectedRoute>
+
+          }
+        />
+
+
+
+        {/* ================= INVALID ROUTE ================= */}
+
+        <Route
+          path="*"
+          element={
+            <Navigate to="/" />
+          }
+        />
+
+      </Routes>
+
+    </>
+
+  );
+
+}
+
+
+
+// =====================================================
+// 🚀 MAIN APP
+// =====================================================
+
+function App() {
+
+  return (
+
+    <BrowserRouter>
+
+      <AppContent />
+
+    </BrowserRouter>
+
+  );
+
+}
+
+export default App;

@@ -1,1226 +1,1019 @@
-// import {useState} from "react"
 
-// function URLScanner(){
+import "./url.css";
 
-// const [url,setUrl] = useState("")
-// const [result,setResult] = useState("")
+import { auth } from "../firebase";
 
-// const scan = ()=>{
+import { useState } from "react";
 
-// if(url.includes("http")){
-// setResult("⚠ Suspicious URL")
-// }else{
-// setResult("✅ Safe URL")
-// }
+function URLScanner() {
 
-// }
+  const [domainAge, setDomainAge] =
+    useState("Unknown");
 
-// return(
+  const [scanTime, setScanTime] =
+    useState("0.0");
 
-// <div>
+  const [securityScore, setSecurityScore] =
+    useState(0);
 
-// <h2>URL Scanner</h2>
+  const [recommendation, setRecommendation] =
+    useState("");
 
-// <input
-// placeholder="Paste URL"
-// value={url}
-// onChange={(e)=>setUrl(e.target.value)}
-// />
+  const [category, setCategory] =
+    useState("Unknown");
 
-// <button onClick={scan}>
-// Scan
-// </button>
+  const [url, setUrl] =
+    useState("");
 
-// <p>{result}</p>
+  const [result, setResult] =
+    useState(null);
 
-// </div>
+  const [copied, setCopied] =
+    useState(false);
 
-// )
+  const [loading, setLoading] =
+    useState(false);
 
-// }
+  const [sslStatus, setSslStatus] =
+    useState(false);
 
-// export default URLScanner
 
 
 
+  // ================= GET HOSTNAME =================
 
+  const getHostname = (inputUrl) => {
 
+    try {
 
+      let fixedUrl = inputUrl;
 
+      if (
+        !fixedUrl.startsWith("http://") &&
+        !fixedUrl.startsWith("https://")
+      ) {
 
+        fixedUrl =
+          "https://" + fixedUrl;
 
+      }
 
-// import {useState} from "react"
+      const parsed =
+        new URL(fixedUrl);
 
-// function URLScanner(){
+      return parsed.hostname
+        .replace("www.", "")
+        .toLowerCase();
 
-// const [url,setUrl] = useState("")
-// const [result,setResult] = useState("")
+    } catch {
 
-// const scan = ()=>{
+      return "";
 
-// if(url.includes("http")){
-// setResult("⚠ Suspicious URL")
-// }else{
-// setResult("✅ Safe URL")
-// }
+    }
 
-// }
+  };
 
-// return(
 
-// <div style={{padding:"30px",color:"white"}}>
 
-// <h2>URL Scanner</h2>
+  const hostname =
+    getHostname(url);
 
-// <input
-// placeholder="Enter URL"
-// value={url}
-// onChange={(e)=>setUrl(e.target.value)}
-// />
 
-// <button onClick={scan}>
-// Scan
-// </button>
 
-// <p>{result}</p>
 
-// </div>
+  // ================= SCAN URL =================
 
-// )
+  const scan = async () => {
 
-// }
+    if (!url.trim()) return;
 
-// export default URLScanner
+    setLoading(true);
 
 
 
+    const start =
+      performance.now();
 
 
-// import { useState } from "react"
 
-// function URLScanner(){
 
-// const [url,setUrl] = useState("")
-// const [result,setResult] = useState("")
-// const [risk,setRisk] = useState(0)
+    let risk = 0;
 
-// const scan = ()=>{
+    let safe = true;
 
-// let riskScore = 10
-// let message = "✅ Safe URL"
+    let reputation =
+      "Trusted Domain";
 
-// if(
-// url.includes("bit.ly") ||
-// url.includes("free") ||
-// url.includes("verify") ||
-// url.includes("login") ||
-// url.includes("bank") ||
-// url.includes("update") ||
-// url.includes("secure") ||
-// url.includes("http://")
-// ){
+    let phishingIndicators = [];
 
-// riskScore = 70
-// message = "⚠ Suspicious URL"
+    let aiAnalysis = [];
 
-// }
 
-// setRisk(riskScore)
-// setResult(message)
 
-// }
 
-// return(
+    // ================= TRUSTED DOMAINS =================
 
-// <div className="url-layout">
+    const trustedDomains = [
 
-// {/* LEFT SIDE */}
+      "google.com",
+      "youtube.com",
+      "github.com",
+      "microsoft.com",
+      "openai.com",
+      "facebook.com",
+      "instagram.com",
+      "amazon.com",
+      "netflix.com",
+      "linkedin.com",
+      "apple.com",
+      "chatgpt.com",
+      "paypal.com",
+      "whatsapp.com"
 
-// <div className="url-left">
+    ];
 
-// <h2>🔗 URL Scanner</h2>
 
-// <input
-// className="url-input"
-// placeholder="Enter URL"
-// value={url}
-// onChange={(e)=>setUrl(e.target.value)}
-// />
 
-// <button className="scan-btn" onClick={scan}>
-// Scan URL
-// </button>
 
-// <h3 style={{marginTop:"20px"}}>
-// {result}
-// </h3>
+    // ================= SUSPICIOUS WORDS =================
 
-// </div>
+    const suspiciousWords = [
 
+      "login",
+      "verify",
+      "secure",
+      "update",
+      "bank",
+      "bonus",
+      "reward",
+      "crypto",
+      "wallet",
+      "free"
 
-// {/* RIGHT SIDE */}
+    ];
 
-// <div className="url-right">
 
-// <h3>Threat Intelligence</h3>
 
-// {/* Threat Meter */}
 
-// <div className="threat-meter">
+    // ================= CATEGORY =================
 
-// <p>Threat Level</p>
+    if (
 
-// <div className="meter-bar">
+      hostname.includes("youtube") ||
+      hostname.includes("netflix")
 
-// <div
-// className="meter-fill"
-// style={{width:`${risk}%`}}
-// ></div>
+    ) {
 
-// </div>
+      setCategory(
+        "Entertainment"
+      );
 
-// <p>{risk}% Risk</p>
+    }
 
-// </div>
+    else if (
 
+      hostname.includes("github") ||
+      hostname.includes("openai")
 
-// {/* AI Analysis */}
+    ) {
 
-// <div className="ai-analysis">
+      setCategory(
+        "Technology"
+      );
 
-// <h3>AI Analysis</h3>
+    }
 
-// <ul>
+    else if (
 
-// <li>Suspicious domain keywords</li>
+      hostname.includes("amazon")
 
-// <li>Untrusted domain source</li>
+    ) {
 
-// <li>Possible phishing attempt</li>
+      setCategory(
+        "Shopping"
+      );
 
-// </ul>
+    }
 
-// </div>
+    else if (
 
-// </div>
+      hostname.includes("bank")
 
-// </div>
+    ) {
 
-// )
+      setCategory(
+        "Banking"
+      );
 
-// }
+    }
 
-// export default URLScanner
+    else {
 
+      setCategory(
+        "General Website"
+      );
 
+    }
 
 
 
 
+    // ================= SSL CHECK =================
 
+    if (
+      url.startsWith("https://")
+    ) {
 
+      setSslStatus(true);
 
+    }
 
+    else {
 
+      setSslStatus(false);
 
-// import { useState } from "react"
+      risk += 30;
 
-// function URLScanner(){
+      phishingIndicators.push(
+        "Website not using HTTPS"
+      );
 
-// const [domainAge,setDomainAge] = useState("Unknown")
-// const [url,setUrl] = useState("")
-// const [result,setResult] = useState("")
-// const [risk,setRisk] = useState(0)
+      aiAnalysis.push(
+        "Connection is not secure"
+      );
 
-// const scan = ()=>{
+    }
 
-// let riskScore = 10
-// let message = "✅ Safe URL"
 
-// if(
-// url.includes("bit.ly") ||
-// url.includes("free") ||
-// url.includes("verify") ||
-// url.includes("login") ||
-// url.includes("bank") ||
-// url.includes("update") ||
-// url.includes("secure") ||
-// url.includes("http://")
-// ){
 
-// riskScore = 70
-// message = "⚠ Suspicious URL"
 
-// }
+    // ================= TRUSTED DOMAIN =================
 
-// setRisk(riskScore)
-// setResult(message)
+    const isTrusted =
 
-// }
+      trustedDomains.includes(
+        hostname
+      ) ||
 
-// return(
+      trustedDomains.some(
+        domain =>
+          hostname.endsWith(
+            "." + domain
+          )
+      );
 
-// <div className="url-layout">
 
-// {/* LEFT SIDE */}
 
-// <div className="url-left">
 
-// <h2>🔗 URL Scanner</h2>
+    // ================= RANDOM DOMAIN =================
 
-// <input
-// className="url-input"
-// placeholder="Enter URL"
-// value={url}
-// onChange={(e)=>setUrl(e.target.value)}
-// />
+    if (
 
-// <button className="scan-btn" onClick={scan}>
-// Scan URL
-// </button>
+      hostname.length > 18 &&
+      !isTrusted
 
-// <h3 style={{marginTop:"20px"}}>
-// {result}
-// </h3>
+    ) {
 
-// </div>
+      risk += 20;
 
+      phishingIndicators.push(
+        "Long suspicious domain"
+      );
 
-// {/* RIGHT SIDE */}
+    }
 
-// <div className="url-right">
 
-// <h3>Threat Intelligence</h3>
 
-// {/* Threat Meter */}
 
-// <div className="threat-meter">
+    // ================= NUMBERS =================
 
-// <p>Threat Level</p>
+    if (/\d/.test(hostname)) {
 
-// <div className="meter-bar">
+      risk += 15;
 
-// <div
-// className="meter-fill"
-// style={{width:`${risk}%`}}
-// ></div>
+      phishingIndicators.push(
+        "Numbers detected in domain"
+      );
 
-// </div>
+    }
 
-// <p>{risk}% Risk</p>
 
-// </div>
 
-// <div className="site-preview">
 
-// <h3>Website Preview</h3>
+    // ================= HYPHENS =================
 
-// {url && (
-// <img
-// src={`https://image.thum.io/get/width/700/${url}`}
-// alt="Website preview"
-// className="preview-img"
-// />
-// )}
+    const hyphenCount =
+      (hostname.match(/-/g) || []).length;
 
-// </div>
+    if (hyphenCount >= 2) {
 
-// <div className="reputation-box">
+      risk += 20;
 
-// <h3>URL Reputation</h3>
+      phishingIndicators.push(
+        "Too many hyphens in domain"
+      );
 
-// <p className={risk > 50 ? "danger" : "safe"}>
-// {risk > 50 ? "⚠ Medium Risk Domain" : "✔ Trusted Domain"}
-// </p>
+    }
 
-// </div>
 
-// <div className="phishing-panel">
 
-// <h3>Phishing Indicators</h3>
 
-// <ul>
+    // ================= SUSPICIOUS WORDS =================
 
-// <li>⚠ URL shortening detected</li>
-// <li>⚠ Suspicious keywords</li>
-// <li>⚠ Newly registered domain</li>
+    suspiciousWords.forEach((word) => {
 
-// </ul>
+      if (
 
-// </div>
+        hostname.includes(word) &&
+        !isTrusted
 
+      ) {
 
-// <div className="threat-stats">
+        risk += 15;
 
-// <h3>Global Threat Intelligence</h3>
+        phishingIndicators.push(
+          `Suspicious keyword: ${word}`
+        );
 
-// <p>Active Phishing Sites Today: <b>1,248</b></p>
+      }
 
-// <p>Malicious URLs Blocked: <b>3,452</b></p>
+    });
 
-// <p>Threat Level: <b>Medium</b></p>
 
-// </div>
 
-// {/* Domain Information */}
 
-// <div className="domain-info">
+    // ================= SHORTENER =================
 
-// <h3>Domain Information</h3>
+    if (
 
-// <p><b>Domain:</b> {url || "N/A"}</p>
-// <p><b>SSL Status:</b> Secure</p>
-// {/* <p><b>Domain Age:</b> 4 Years</p> */}
-// <p><b>Domain Age:</b> {domainAge} Years</p>
-// </div>
+      hostname.includes("bit.ly") ||
+      hostname.includes("tinyurl")
 
+    ) {
 
-// {/* Security Indicators */}
+      risk += 50;
 
-// <div className="security-panel">
+      phishingIndicators.push(
+        "Shortened URL detected"
+      );
 
-// <h3>Security Indicators</h3>
+    }
 
-// <ul>
-// <li>✔ HTTPS Enabled</li>
-// <li>✔ No Malware Detected</li>
-// <li>✔ Trusted Domain</li>
-// </ul>
 
-// </div>
 
 
-// {/* AI Analysis */}
+    // ================= FINAL RESULT =================
 
-// <div className="ai-analysis">
+    if (
+      isTrusted &&
+      risk <= 20
+    ) {
 
-// <h3>AI Analysis</h3>
+      safe = true;
 
-// <ul>
+      risk = 5;
 
-// <li>Suspicious domain keywords</li>
-// <li>Untrusted domain source</li>
-// <li>Possible phishing attempt</li>
+      reputation =
+        "Trusted Domain";
 
-// </ul>
+      aiAnalysis = [
 
-// </div>
+        "Trusted official domain",
+        "HTTPS protection enabled",
+        "No phishing patterns found"
 
-// </div>
+      ];
 
-// </div>
+    }
 
-// )
+    else if (risk >= 60) {
 
-// }
+      safe = false;
 
-// export default URLScanner
+      reputation =
+        "Dangerous Domain";
 
+      aiAnalysis.push(
+        "High-risk phishing website detected"
+      );
 
+    }
 
+    else {
 
-// import { useState } from "react"
+      safe = true;
 
-// function URLScanner(){
+      reputation =
+        "Medium Risk Domain";
 
-// const [domainAge,setDomainAge] = useState("Unknown")
-// const [url,setUrl] = useState("")
-// const [result,setResult] = useState("")
-// const [risk,setRisk] = useState(0)
+      aiAnalysis.push(
+        "Minor suspicious indicators detected"
+      );
 
-// const scan = async ()=>{
+    }
 
-// let riskScore = 10
-// let message = "✅ Safe URL"
 
-// if(
-// url.includes("bit.ly") ||
-// url.includes("free") ||
-// url.includes("verify") ||
-// url.includes("login") ||
-// url.includes("bank") ||
-// url.includes("update") ||
-// url.includes("secure") ||
-// url.includes("http://")
-// ){
 
-// riskScore = 70
-// message = "⚠ Suspicious URL"
 
-// }
+    // ================= SCORE =================
 
-// setRisk(riskScore)
-// setResult(message)
+    setSecurityScore(
+      100 - risk
+    );
 
 
-// // 🔹 Fetch real domain age from backend
 
-// try{
 
-// const res = await fetch("http://localhost:5000/api/domain-info",{
-// method:"POST",
-// headers:{
-// "Content-Type":"application/json"
-// },
-// body:JSON.stringify({url})
-// })
+    // ================= RECOMMENDATION =================
 
-// const data = await res.json()
+    if (safe) {
 
-// setDomainAge(data.age)
+      setRecommendation(
+        "Safe website detected. No suspicious activity found."
+      );
 
-// }catch(err){
+    }
 
-// console.log("Domain lookup error",err)
+    else {
 
-// }
+      setRecommendation(
+        "Avoid entering passwords, OTPs, or payment details."
+      );
 
-// }
+    }
 
-// return(
 
-// <div className="url-layout">
 
-// {/* LEFT SIDE */}
 
-// <div className="url-left">
+    // ================= DOMAIN AGE =================
 
-// <h2>🔗 URL Scanner</h2>
+    try {
 
-// <input
-// className="url-input"
-// placeholder="Enter URL"
-// value={url}
-// onChange={(e)=>setUrl(e.target.value)}
-// />
+      const res = await fetch(
+        "http://localhost:5000/api/domain-info",
+        {
+          method: "POST",
 
-// <button className="scan-btn" onClick={scan}>
-// Scan URL
-// </button>
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-// <h3 style={{marginTop:"20px"}}>
-// {result}
-// </h3>
+          body: JSON.stringify({
+            url
+          })
+        }
+      );
 
-// </div>
 
 
-// {/* RIGHT SIDE */}
+      if (res.ok) {
 
-// <div className="url-right">
+        const data =
+          await res.json();
 
-// <h3>Threat Intelligence</h3>
+        setDomainAge(
+          data.age || "Unknown"
+        );
 
+      }
 
-// {/* Threat Meter */}
+    } catch (err) {
 
-// <div className="threat-meter">
+      console.log(err);
 
-// <p>Threat Level</p>
+    }
 
-// <div className="meter-bar">
 
-// <div
-// className="meter-fill"
-// style={{width:`${risk}%`}}
-// ></div>
 
-// </div>
 
-// <p>{risk}% Risk</p>
+    // ================= SCAN SPEED =================
 
-// </div>
+    const end =
+      performance.now();
 
+    setScanTime(
+      ((end - start) / 1000)
+      .toFixed(2)
+    );
 
-// {/* Website Preview */}
 
-// <div className="site-preview">
 
-// <h3>Website Preview</h3>
 
-// {url && (
-// <img
-// src={`https://image.thum.io/get/width/700/${url}`}
-// alt="Website preview"
-// className="preview-img"
-// />
-// )}
+    // ================= SET RESULT =================
 
-// </div>
+    const finalResult = {
 
+      safe,
+      risk,
+      reputation,
+      phishingIndicators,
+      aiAnalysis
 
-// {/* URL Reputation */}
+    };
 
-// <div className="reputation-box">
 
-// <h3>URL Reputation</h3>
 
-// <p className={risk > 50 ? "danger" : "safe"}>
-// {risk > 50 ? "⚠ Medium Risk Domain" : "✔ Trusted Domain"}
-// </p>
+    setResult(finalResult);
 
-// </div>
+    setLoading(false);
 
 
-// {/* Phishing Indicators */}
 
-// <div className="phishing-panel">
 
-// <h3>Phishing Indicators</h3>
+    // ================= SAVE HISTORY =================
 
-// <ul>
-// <li>⚠ URL shortening detected</li>
-// <li>⚠ Suspicious keywords</li>
-// <li>⚠ Newly registered domain</li>
-// </ul>
+    const userEmail =
+      auth.currentUser?.email;
 
-// </div>
+    const historyKey =
+      `scamHistory_${userEmail}`;
 
+    const history =
+      JSON.parse(
+        localStorage.getItem(historyKey)
+      ) || [];
 
-// {/* Global Threat Intelligence */}
 
-// <div className="threat-stats">
 
-// <h3>Global Threat Intelligence</h3>
+    history.unshift({
 
-// <p>Active Phishing Sites Today: <b>1,248</b></p>
-// <p>Malicious URLs Blocked: <b>3,452</b></p>
-// <p>Threat Level: <b>Medium</b></p>
+      module:
+        "URL Scanner",
 
-// </div>
+      text: url,
 
+      prediction:
+        safe ? "SAFE" : "SCAM",
 
-// {/* Domain Information */}
+      probability: risk,
 
-// <div className="domain-info">
+      type: reputation,
 
-// <h3>Domain Information</h3>
+      time:
+        new Date().toLocaleString()
 
-// <p><b>Domain:</b> {url || "N/A"}</p>
-// <p><b>SSL Status:</b> Secure</p>
-// <p><b>Domain Age:</b> {domainAge} Years</p>
+    });
 
-// </div>
 
 
-// {/* Security Indicators */}
+    localStorage.setItem(
 
-// <div className="security-panel">
+      historyKey,
 
-// <h3>Security Indicators</h3>
+      JSON.stringify(history)
 
-// <ul>
-// <li>✔ HTTPS Enabled</li>
-// <li>✔ No Malware Detected</li>
-// <li>✔ Trusted Domain</li>
-// </ul>
+    );
 
-// </div>
+  };
 
 
-// {/* AI Analysis */}
 
-// <div className="ai-analysis">
 
-// <h3>AI Analysis</h3>
+  return (
 
-// <ul>
-// <li>Suspicious domain keywords</li>
-// <li>Untrusted domain source</li>
-// <li>Possible phishing attempt</li>
-// </ul>
+    <div className="page-container">
 
-// </div>
+      {/* ===== PAGE TITLE ===== */}
 
-// </div>
+      <h1 className="page-title">
+        🔗 AI URL Scanner
+      </h1>
 
-// </div>
+      <p className="page-subtitle">
 
-// )
+        Scan suspicious websites,
+        phishing links,
+        and dangerous domains
+        using AI-powered security analysis.
 
-// }
+      </p>
 
-// export default URLScanner
 
 
 
+      {/* ===== SEARCH BOX ===== */}
 
+      <div className="url-search-box">
 
+        <input
 
+          className="url-search-input"
 
+          placeholder="Enter suspicious URL"
 
+          value={url}
 
+          onChange={(e) =>
+            setUrl(
+              e.target.value
+            )
+          }
 
+        />
 
 
 
+        <button
+          className="url-search-btn"
+          onClick={scan}
+        >
 
+          🔍 Scan URL
 
-// import { useState } from "react"
+        </button>
 
-// function URLScanner(){
 
-// const [domainAge,setDomainAge] = useState("Unknown")
-// const [url,setUrl] = useState("")
-// const [result,setResult] = useState("")
-// const [risk,setRisk] = useState(0)
 
-// const scan = async ()=>{
 
-// let riskScore = 10
-// let message = "SAFE"
-// let type = "Trusted Domain"
+        <button
 
-// if(
-// url.includes("bit.ly") ||
-// url.includes("free") ||
-// url.includes("verify") ||
-// url.includes("login") ||
-// url.includes("bank") ||
-// url.includes("update") ||
-// url.includes("secure") ||
-// url.includes("http://")
-// ){
+          className="copy-btn"
 
-// riskScore = 70
-// message = "SCAM"
-// type = "Phishing URL Detected"
+          onClick={() => {
 
-// }
+            navigator.clipboard
+              .writeText(url);
 
-// setRisk(riskScore)
-// setResult(message)
+            setCopied(true);
 
+            setTimeout(() => {
 
-// // 🔹 Fetch real domain age
+              setCopied(false);
 
-// let age = "Unknown"
+            }, 2000);
 
-// try{
+          }}
 
-// const res = await fetch("http://localhost:5000/api/domain-info",{
-// method:"POST",
-// headers:{
-// "Content-Type":"application/json"
-// },
-// body:JSON.stringify({url})
-// })
+        >
 
-// const data = await res.json()
+          📋 Copy URL
 
-// age = data.age
+        </button>
 
-// setDomainAge(age)
 
-// }catch(err){
 
-// console.log("Domain lookup error",err)
 
-// }
+        <button
 
+          className="visit-btn"
 
-// // 🔹 SAVE HISTORY (VERY IMPORTANT)
+          onClick={() =>
+            window.open(
+              url,
+              "_blank"
+            )
+          }
 
-// const history = JSON.parse(localStorage.getItem("scamHistory")) || []
+        >
 
-// history.unshift({
+          🌐 Visit Website
 
-// module:"URL Scanner",
-// text:url,
-// prediction:message,
-// probability:riskScore,
-// type:type,
-// time:new Date().toLocaleString()
+        </button>
 
-// })
+      </div>
 
-// localStorage.setItem("scamHistory",JSON.stringify(history))
 
-// }
 
-// return(
 
-// <div className="url-layout">
+      {/* ===== COPY ===== */}
 
+      {copied && (
 
-// {/* LEFT SIDE */}
+        <p className="copy-text">
+          ✅ URL copied
+        </p>
 
-// <div className="url-left">
+      )}
 
-// <h2>🔗 URL Scanner</h2>
 
-// <input
-// className="url-input"
-// placeholder="Enter URL"
-// value={url}
-// onChange={(e)=>setUrl(e.target.value)}
-// />
 
-// <button className="scan-btn" onClick={scan}>
-// Scan URL
-// </button>
 
-// <h3 style={{marginTop:"20px"}}>
-// {result==="SCAM" ? "⚠ Suspicious URL" : result==="SAFE" ? "✅ Safe URL" : ""}
-// </h3>
+      {/* ===== LOADING ===== */}
 
-// </div>
+      {loading && (
 
+        <div className="scan-loader">
 
+          <div className="loader-circle"></div>
 
-// {/* RIGHT SIDE */}
+          <p>
+            AI scanning website...
+          </p>
 
-// <div className="url-right">
+        </div>
 
-// <h3>Threat Intelligence</h3>
+      )}
 
 
-// {/* Threat Meter */}
 
-// <div className="threat-meter">
 
-// <p>Threat Level</p>
+      {/* ===== RESULT ===== */}
 
-// <div className="meter-bar">
+      {result && (
 
-// <div
-// className="meter-fill"
-// style={{width:`${risk}%`}}
-// ></div>
+        <>
 
-// </div>
+          {/* ===== AI VERDICT CARD ===== */}
 
-// <p>{risk}% Risk</p>
+          <div className="verdict-card">
 
-// </div>
+            <div className="verdict-top">
 
+              <div>
 
+                <h2 className="verdict-title">
 
-// {/* Website Preview */}
+                  {result.safe
+                    ? "🟢 AI Verdict: SAFE"
+                    : "🔴 AI Verdict: SCAM"}
 
-// <div className="site-preview">
+                </h2>
 
-// <h3>Website Preview</h3>
+                <p className="verdict-subtitle">
 
-// {url && (
-// <img
-// src={`https://image.thum.io/get/width/700/${url}`}
-// alt="Website preview"
-// className="preview-img"
-// />
-// )}
+                  {result.safe
 
-// </div>
+                    ? "This website appears legitimate and secure."
 
+                    : "Suspicious phishing indicators detected by AI."}
 
+                </p>
 
-// {/* URL Reputation */}
+              </div>
 
-// <div className="reputation-box">
 
-// <h3>URL Reputation</h3>
 
-// <p className={risk > 50 ? "danger" : "safe"}>
-// {risk > 50 ? "⚠ Medium Risk Domain" : "✔ Trusted Domain"}
-// </p>
+              {/* SECURITY BADGES */}
 
-// </div>
+              <div className="badge-row">
 
+                <div className="status-badge ssl">
 
+                  🔒 SSL Protected
 
-// {/* Phishing Indicators */}
+                </div>
 
-// <div className="phishing-panel">
+                <div className="status-badge ai">
 
-// <h3>Phishing Indicators</h3>
+                  🤖 AI Verified
 
-// <ul>
-// <li>⚠ URL shortening detected</li>
-// <li>⚠ Suspicious keywords</li>
-// <li>⚠ Newly registered domain</li>
-// </ul>
+                </div>
 
-// </div>
+                <div className="status-badge threat">
 
+                  🛡 Threat Protected
 
+                </div>
 
-// {/* Global Threat Intelligence */}
+              </div>
 
-// <div className="threat-stats">
+            </div>
 
-// <h3>Global Threat Intelligence</h3>
+          </div>
 
-// <p>Active Phishing Sites Today: <b>1,248</b></p>
-// <p>Malicious URLs Blocked: <b>3,452</b></p>
-// <p>Threat Level: <b>Medium</b></p>
 
-// </div>
 
 
+          {/* ===== RESULT CARDS ===== */}
 
-// {/* Domain Information */}
+          <div className="result-section">
 
-// <div className="domain-info">
+            {/* CATEGORY */}
 
-// <h3>Domain Information</h3>
+            <div className="result-card">
 
-// <p><b>Domain:</b> {url || "N/A"}</p>
-// <p><b>SSL Status:</b> Secure</p>
-// <p><b>Domain Age:</b> {domainAge} Years</p>
+              <h3>
+                🌍 Website Category
+              </h3>
 
-// </div>
+              <p>
+                {category}
+              </p>
 
+            </div>
 
 
-// {/* Security Indicators */}
 
-// <div className="security-panel">
 
-// <h3>Security Indicators</h3>
+            {/* URL REPUTATION */}
 
-// <ul>
-// <li>✔ HTTPS Enabled</li>
-// <li>✔ No Malware Detected</li>
-// <li>✔ Trusted Domain</li>
-// </ul>
+            <div className="result-card">
 
-// </div>
+              <h3>
+                🔒 URL Reputation
+              </h3>
 
+              <p
+                className={
+                  result.safe
+                    ? "safe-text"
+                    : "danger-text"
+                }
+              >
 
+                {result.safe
 
-// {/* AI Analysis */}
+                  ? "✓ Trusted Domain"
 
-// <div className="ai-analysis">
+                  : `⚠ ${result.reputation}`}
 
-// <h3>AI Analysis</h3>
+              </p>
 
-// <ul>
-// <li>Suspicious domain keywords</li>
-// <li>Untrusted domain source</li>
-// <li>Possible phishing attempt</li>
-// </ul>
+            </div>
 
-// </div>
 
-// </div>
 
-// </div>
 
-// )
+            {/* PHISHING */}
 
-// }
+            <div className="result-card">
 
-// export default URLScanner
+              <h3>
+                ⚠️ Phishing Indicators
+              </h3>
 
+              {result.phishingIndicators
+                .length === 0 ? (
 
+                <p className="safe-text">
+                  ✅ No phishing indicators
+                </p>
 
+              ) : (
 
+                result.phishingIndicators.map(
+                  (item, index) => (
 
+                    <p
+                      key={index}
+                      className="danger-text"
+                    >
+                      ⚠ {item}
+                    </p>
 
+                  )
+                )
 
+              )}
 
+            </div>
 
 
 
 
+            {/* DOMAIN INFO */}
 
+            <div className="result-card">
 
+              <h3>
+                🌐 Domain Information
+              </h3>
 
+              <p>
+                <b>Domain:</b>
+                {" "}
+                {hostname}
+              </p>
 
+              <p>
 
-import "./url.css"
-import { useState } from "react"
+                <b>SSL:</b>
 
-function URLScanner(){
+                {sslStatus
 
-const [domainAge,setDomainAge] = useState("Unknown")
-const [url,setUrl] = useState("")
-const [result,setResult] = useState("")
-const [risk,setRisk] = useState(0)
+                  ? " 🔒 Secure HTTPS"
 
-const scan = async ()=>{
+                  : " ⚠ Not Secure"}
 
-let riskScore = 10
-let message = "SAFE"
-let type = "Trusted Domain"
+              </p>
 
-if(
-url.includes("bit.ly") ||
-url.includes("free") ||
-url.includes("verify") ||
-url.includes("login") ||
-url.includes("bank") ||
-url.includes("update") ||
-url.includes("secure") ||
-url.includes("http://")
-){
+              <p>
+                <b>Domain Age:</b>
+                {" "}
+                {domainAge}
+              </p>
 
-riskScore = 70
-message = "SCAM"
-type = "Phishing URL Detected"
+              <p>
+                <b>Scan Speed:</b>
+                {" "}
+                {scanTime}s
+              </p>
+
+            </div>
+
+
+
+
+            {/* SECURITY */}
+
+            <div className="result-card">
+
+              <h3>
+                🛡️ Security Indicators
+              </h3>
+
+              <p>
+
+                {sslStatus
+
+                  ? "✔ HTTPS Enabled"
+
+                  : "⚠ HTTP Website"}
+
+              </p>
+
+              <p>
+
+                {result.safe
+
+                  ? "✔ Trusted Domain"
+
+                  : "⚠ Untrusted Domain"}
+
+              </p>
+
+              <p>
+
+                {result.safe
+
+                  ? "✔ No Malware Detected"
+
+                  : "⚠ Suspicious Activity"}
+
+              </p>
+
+            </div>
+
+
+
+
+            {/* AI ANALYSIS */}
+
+            <div className="result-card">
+
+              <h3>
+                🤖 AI Analysis
+              </h3>
+
+              {result.aiAnalysis.map(
+                (item, index) => (
+
+                  <p key={index}>
+                    {item}
+                  </p>
+
+                )
+              )}
+
+            </div>
+
+          </div>
+
+
+
+
+          {/* ===== SECURITY SCORE ===== */}
+
+          <div className="security-score-card">
+
+            <h2>
+              🛡 AI Security Score
+            </h2>
+
+            <div className="score-circle">
+
+              {securityScore}/100
+
+            </div>
+
+          </div>
+
+
+
+
+          {/* ===== AI RECOMMENDATION ===== */}
+
+          <div className="recommendation-card">
+
+            <h2>
+              🧠 AI Recommendation
+            </h2>
+
+            <p>
+              {recommendation}
+            </p>
+
+          </div>
+
+        </>
+
+      )}
+
+    </div>
+
+  );
 
 }
 
-setRisk(riskScore)
-setResult(message)
-
-
-// 🔹 Fetch domain age
-
-let age = "Unknown"
-
-try{
-
-const res = await fetch("http://localhost:5000/api/domain-info",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({url})
-})
-
-const data = await res.json()
-
-age = data.age
-setDomainAge(age)
-
-}catch(err){
-console.log("Domain lookup error",err)
-}
-
-
-// 🔹 SAVE HISTORY
-
-const history = JSON.parse(localStorage.getItem("scamHistory")) || []
-
-history.unshift({
-module:"URL Scanner",
-text:url,
-prediction:message,
-probability:riskScore,
-type:type,
-time:new Date().toLocaleString()
-})
-
-localStorage.setItem("scamHistory",JSON.stringify(history))
-
-}
-
-
-
-return(
-
-<div className="url-layout">
-
-
-{/* LEFT SIDE */}
-
-<div className="url-left">
-
-<h2>🔗 URL Scanner</h2>
-
-
-{/* NEW LARGE SEARCH BAR */}
-
-<div className="url-search-box">
-
-<input
-className="url-search-input"
-placeholder="Enter suspicious URL"
-value={url}
-onChange={(e)=>setUrl(e.target.value)}
-/>
-
-<button
-className="url-search-btn"
-onClick={scan}
->
-🔍 Scan URL
-</button>
-
-</div>
-
-
-<h3 style={{marginTop:"20px"}}>
-{result==="SCAM" ? "⚠ Suspicious URL" : result==="SAFE" ? "✅ Safe URL" : ""}
-</h3>
-
-</div>
-
-
-
-{/* RIGHT SIDE */}
-
-<div className="url-right">
-
-<h3>Threat Intelligence</h3>
-
-
-{/* Threat Meter */}
-
-<div className="threat-meter">
-
-<p>Threat Level</p>
-
-<div className="meter-bar">
-
-<div
-className="meter-fill"
-style={{width:`${risk}%`}}
-></div>
-
-</div>
-
-<p>{risk}% Risk</p>
-
-</div>
-
-
-
-{/* Website Preview */}
-
- <div className="site-preview">
-
-<h3>Website Preview</h3>
-
-{url && (
-<img
-src={`https://image.thum.io/get/width/700/${url}`}
-alt="Website preview"
-className="preview-img"
-/>
-)}
-
-</div> 
-
-
-
-
-{/* Website Preview
-
-<div className="site-preview">
-
-<h3>Website Preview</h3>
-
-{url && (
-<img
-src={`https://image.thum.io/get/width/700/${url}`}
-alt="Website preview"
-className="preview-img"
-/>
-)}
-
-</div> */}
-
-
-{/* URL Reputation */}
-
-<div className="reputation-box">
-
-<h3>URL Reputation</h3>
-
-<p className={risk > 50 ? "danger" : "safe"}>
-{risk > 50 ? "⚠ Medium Risk Domain" : "✔ Trusted Domain"}
-</p>
-
-</div>
-
-
-
-{/* Phishing Indicators */}
-
-<div className="phishing-panel">
-
-<h3>Phishing Indicators</h3>
-
-<ul>
-<li>⚠ URL shortening detected</li>
-<li>⚠ Suspicious keywords</li>
-<li>⚠ Newly registered domain</li>
-</ul>
-
-</div>
-
-
-
-{/* Global Threat Intelligence */}
-
-<div className="threat-stats">
-
-<h3>Global Threat Intelligence</h3>
-
-<p>Active Phishing Sites Today: <b>1,248</b></p>
-<p>Malicious URLs Blocked: <b>3,452</b></p>
-<p>Threat Level: <b>Medium</b></p>
-
-</div>
-
-
-
-{/* Domain Information */}
-
-<div className="domain-info">
-
-<h3>Domain Information</h3>
-
-<p><b>Domain:</b> {url || "N/A"}</p>
-<p><b>SSL Status:</b> Secure</p>
-<p><b>Domain Age:</b> {domainAge} Years</p>
-
-</div>
-
-
-
-{/* Security Indicators */}
-
-<div className="security-panel">
-
-<h3>Security Indicators</h3>
-
-<ul>
-<li>✔ HTTPS Enabled</li>
-<li>✔ No Malware Detected</li>
-<li>✔ Trusted Domain</li>
-</ul>
-
-</div>
-
-
-
-{/* AI Analysis */}
-
-<div className="ai-analysis">
-
-<h3>AI Analysis</h3>
-
-<ul>
-<li>Suspicious domain keywords</li>
-<li>Untrusted domain source</li>
-<li>Possible phishing attempt</li>
-</ul>
-
-</div>
-
-</div>
-
-</div>
-
-)
-
-}
-
-export default URLScanner
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default URLScanner;
