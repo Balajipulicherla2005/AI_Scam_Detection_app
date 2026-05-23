@@ -1,3 +1,108 @@
+# 🛡️ AI Scam Detection Platform
+
+Modern AI-powered cybersecurity web application for detecting online scams, phishing attacks, malicious links, fake messages, and suspicious voice activity.
+
+
+
+# 🚀 Live Features
+
+✅ AI Scam Message Detection  
+✅ Phishing URL Scanner  
+✅ AI Cybersecurity Assistant  
+✅ Voice Scam Detection  
+✅ Identity Protection  
+✅ Detection History  
+✅ Secure Firebase Authentication  
+✅ User-Specific Cloud History  
+✅ Modern Cybersecurity Dashboard UI  
+
+
+
+# 🧠 AI Modules
+
+| Module | Description |
+|---|---|
+| Check Message | Detect scam & phishing messages |
+| Check Link | Scan URLs for malicious activity |
+| AI Assistant | Ask cybersecurity & scam-related questions |
+| Check Voice | Analyze suspicious voice scams |
+| Detection History | User-specific secure detection logs |
+
+
+# 🛠️ Tech Stack
+
+## Frontend
+
+- React.js
+- Vite
+- Firebase Authentication
+- Firestore Database
+- React Router DOM
+- CSS3
+- React Icons
+
+
+# 📂 Project Structure
+
+
+client/
+ ├── public/
+ ├── src/
+ │    ├── assets/
+ │    ├── components/
+ │    ├── pages/
+ │    ├── firebase.js
+ │    ├── App.jsx
+ │    └── main.jsx
+ │
+ ├── .env
+ ├── package.json
+ └── vite.config.js
+
+# ⚙️ Installation
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+
+
+# 🔥 Firebase Setup
+
+Create `.env` file inside `client/`
+
+--env
+VITE_FIREBASE_API_KEY=your_api_key
+
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+
+VITE_FIREBASE_PROJECT_ID=your_project_id
+
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+
+VITE_FIREBASE_APP_ID=your_app_id
+
+
+# ▶️ Start Frontend
+
+```bash
+npm run dev
+
+
+
+
+
+
+
+
+
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
