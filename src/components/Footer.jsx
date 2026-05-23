@@ -52,105 +52,7 @@ function Footer() {
           fraud and scam messages instantly.
         </p>
 
-        {/* <div className="cta-buttons">
-
-          <button
-            className="cta-btn primary"
-            onClick={() =>
-              handleProtectedRoute(
-                "/detector"
-              )
-            }
-          >
-            Try Detector
-          </button>
-
-          <button
-            className="cta-btn secondary"
-            onClick={() =>
-              handleProtectedRoute(
-                "/assistant"
-              )
-            }
-          >
-            Ask AI Assistant
-          </button>
- */}
-        {/* </div> */}
-
       </div>
-
-      {/* OPTIONAL FOOTER LINKS */}
-
-      {/*
-      <div className="footer-container">
-
-        <div className="footer-col">
-
-          <h3>
-            🛡 AI Scam Detection
-          </h3>
-
-          <p>
-            Protect users from phishing,
-            scam calls and fraudulent links
-            using AI powered tools.
-          </p>
-
-        </div>
-
-        <div className="footer-col">
-
-          <h3>
-            Quick Links
-          </h3>
-
-          <Link to="/">
-            Dashboard
-          </Link>
-
-          <Link to="/detector">
-            Check Message
-          </Link>
-
-          <Link to="/assistant">
-            AI Chatbot
-          </Link>
-
-          <Link to="/url-scanner">
-            Check Link
-          </Link>
-
-          <Link to="/voice">
-            Check Voice
-          </Link>
-
-          <Link to="/history">
-            History
-          </Link>
-
-        </div>
-
-        <div className="footer-col">
-
-          <h3>
-            Contact
-          </h3>
-
-          <p>
-            Email:
-            support@aiscam.ai
-          </p>
-
-          <p>
-            Phone:
-            +91 98765 43210
-          </p>
-
-        </div>
-
-      </div>
-      */}
 
       {/* FOOTER BOTTOM */}
 
@@ -164,7 +66,6 @@ function Footer() {
     </footer>
 
   );
-
 }
 
 export default Footer;
