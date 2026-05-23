@@ -15,7 +15,7 @@ import {
   FaUserCircle
 } from "react-icons/fa";
 
-import "./Navbar.css";
+import "./navbar.css";
 
 function Navbar() {
 
